@@ -34,13 +34,13 @@ b) How do you plan to divide up the work? (Grading is on a group basis. The poin
 
 List three questions that you hope you will be able to answer from your research.
 
-
+Main topic: What factors maybe influence salary?
 
 a) The relationship between salary vs. regions.
 
 b) The relationship between salary vs. job description.
 
-c)
+c) The relationship between salary vs. agency.
 
 ### 3. Which output format do you plan to use to submit the project? 
 
@@ -69,7 +69,13 @@ What is your data source?  What is your method for importing data? Please be spe
 
 [5 points]
 
-
 ### 5. Provide a short summary, including 2-3 graphs, of your initial investigations. 
 
 [10 points]
+
+```{r}
+library(ggplot2)
+ggplot(data, aes(data$`Job Category`)) + 
+  geom_histogram(stat = 'count')
+```
+
