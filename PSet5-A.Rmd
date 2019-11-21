@@ -74,8 +74,39 @@ What is your data source?  What is your method for importing data? Please be spe
 [10 points]
 
 ```{r}
-library(ggplot2)
-ggplot(data, aes(data$`Job Category`)) + 
-  geom_histogram(stat = 'count')
+job<- read.csv("NYC_jobs.csv")
+job[job==''] <- NA
+
+category <- job$Job.Category%>%
+  as.character(.)%>%
+  unlist()%>%
+  na.omit()%>%
+  gsub(",","",.)%>%
+  gsub("&","",.)%>%
+  text_sub(.,1,4,)
+
+categoryList = c()
+for (i in 1:length(category)){
+  categoryList[i] <- as.character(category[[i]])
+}
+categoryList<-categoryList%>%
+  as.data.frame(.)%>%
+  mutate(count = 1)
+
+colnames(categoryList) <- c("Category","count")
+
+
+cate_grouped<-categoryList%>%
+  group_by(Category)%>%
+  summarise(count = sum(count))%>%
+  mutate(Category=factor(Category,levels = Category[order(count)]))
+
+
+
+ggplot(cate_grouped,aes(x = Category, y = count))+
+  geom_bar(stat = "identity")+
+  coord_flip()
+  
+  
 ```
 
