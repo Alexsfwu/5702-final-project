@@ -38,7 +38,7 @@ Main topic: What factors maybe influence salary?
 
 a) The relationship between salary vs. regions.
 
-b) The relationship between salary vs. job description.
+b) The relationship between salary vs. job category.
 
 c) The relationship between salary vs. agency.
 
@@ -67,6 +67,8 @@ We decide to use the html_document as our output format.
 
 What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
 
+
+
 [5 points]
 
 ### 5. Provide a short summary, including 2-3 graphs, of your initial investigations. 
@@ -74,39 +76,57 @@ What is your data source?  What is your method for importing data? Please be spe
 [10 points]
 
 ```{r}
+library(dplyr)
+library(corpus)
+library(ggplot2)
+library(magrittr)
 job<- read.csv("NYC_jobs.csv")
 job[job==''] <- NA
 
+
+
+```
+
+
+```{r}
 category <- job$Job.Category%>%
   as.character(.)%>%
   unlist()%>%
   na.omit()%>%
-  gsub(",","",.)%>%
-  gsub("&","",.)%>%
-  text_sub(.,1,4,)
+  gsub(",|&","",.)%>%
+  text_sub(.,1,3,)%>%
+  trimws(.,"both")
 
 categoryList = c()
 for (i in 1:length(category)){
   categoryList[i] <- as.character(category[[i]])
 }
+
 categoryList<-categoryList%>%
-  as.data.frame(.)%>%
-  mutate(count = 1)
-
-colnames(categoryList) <- c("Category","count")
-
-
-cate_grouped<-categoryList%>%
+  data.frame(Category=.,Count =1)%>%
   group_by(Category)%>%
-  summarise(count = sum(count))%>%
-  mutate(Category=factor(Category,levels = Category[order(count)]))
+  mutate(Count = n())
 
-
-
-ggplot(cate_grouped,aes(x = Category, y = count))+
-  geom_bar(stat = "identity")+
+ggplot(categoryList,aes(x = Category))+
+  geom_bar()+
   coord_flip()
   
   
 ```
+```{r}
+job<- job%>%
+  mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)
 
+Annual = job[job$Salary.Frequency=="Annual",]
+ggplot()+
+  geom_histogram(data = Annual,aes(Annual$salary))
+```
+
+```{r}
+Daily = job[job$Salary.Frequency=="Daily",]
+ggplot()+
+  geom_histogram(data = Daily,aes(Daily$salary))
+```
+
+
+From above plots, we identified the job category which post most jobs. We also see the distribution of daily salry and annual salary. From here, we will continually explore the relationship bwtween the job category and salary.
