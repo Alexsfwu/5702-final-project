@@ -92,7 +92,7 @@ job[job==''] <- NA
 category <- job$Job.Category%>%
   as.character(.)%>%
   unlist()%>%
-  na.omit()%>%
+  #na.omit()%>%
   gsub(",|&","",.)%>%
   text_sub(.,1,3,)%>%
   trimws(.,"both")
@@ -103,19 +103,21 @@ for (i in 1:length(category)){
 }
 
 categoryList<-categoryList%>%
-  data.frame(Category=.,Count =1)%>%
+  data.frame(Category=.,Count =1,Job.ID = job$Job.ID)%>%
   group_by(Category)%>%
   mutate(Count = n())
 
 ggplot(categoryList,aes(x = Category))+
   geom_bar()+
+  labs(title = "postings by category")+
   coord_flip()
   
   
 ```
 ```{r}
 job<- job%>%
-  mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)
+  mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)%>%
+  merge(.,categoryList,by = "Job.ID")
 
 Annual = job[job$Salary.Frequency=="Annual",]
 ggplot()+
@@ -128,5 +130,13 @@ ggplot()+
   geom_histogram(data = Daily,aes(Daily$salary))
 ```
 
+```{r}
+ggplot(job, aes(x = Category, y = salary)) +
+  geom_boxplot() +
+  labs(title = "Jobs salary") +
+  coord_flip()
+```
 
-From above plots, we identified the job category which post most jobs. We also see the distribution of daily salry and annual salary. From here, we will continually explore the relationship bwtween the job category and salary.
+From above plots, we identified the job category which post most jobs. We also see the distribution of daily salry and annual salary.
+The boxplot shows the salary range for different category.
+From here, we will continually explore the relationship bwtween the job category and salary.
