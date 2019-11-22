@@ -67,7 +67,9 @@ We decide to use the html_document as our output format.
 
 What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
 
+Our data source Department of Citywide Administrative Services (DCAS). We can directly export the data from the website with csv format. The dataset contains current job postings available on the City of New York’s official jobs site (http://www.nyc.gov/html/careers/html/search/search.shtml). 
 
+There are lot of job descrition for each job with no single format. We need to deal with natural laguage and find the portential relationship. We probably will extract the key words and do the word cloud to explore the relationship.
 
 [5 points]
 
