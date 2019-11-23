@@ -30,7 +30,7 @@ To
 
     Chengyou may will work on the topic of salary vs. agency, and he may also use the word cloud to explore the relationship between these two variables. 
     
-    Shaofeng will work on the data cleaning and mabipulation, and he try to find connections among NAs or may come up with interesting topics when doing the data cleaning. 
+    Shaofeng will work on the data cleaning and mabipulation, and he will try to find connections among NAs or may come up with interesting topics when doing the data cleaning. 
     
     Yujing will investigate on the topic of salary vs. regions, and she also wants to draw a hierarchical graph using d3 to classify regions with different level of salaries. 
     
