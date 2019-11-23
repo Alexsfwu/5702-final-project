@@ -103,8 +103,8 @@ job[job == ''] <- NA
 categoryList <- job %>%
   select(Job.Category, Job.ID) %>%
   mutate(Job.Category = as.character(Job.Category), 
-         Job.Category = gsub(",|&","", Job.Category), 
-         Job.Category = word(Job.Category, 1 , 4, sep = ' '), 
+         Job.Category = gsub(",|&","", Job.Category),
+         Job.Category = as.vector(text_sub(Job.Category, 1 , 3, )),
          Job.Category = trimws(Job.Category,"both")) %>%
   as.data.frame() %>%
   #drop_na()%>%
