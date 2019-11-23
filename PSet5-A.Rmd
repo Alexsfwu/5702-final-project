@@ -93,25 +93,26 @@ library(corpus)
 library(ggplot2)
 library(magrittr)
 library(forcats)
+library(tidyverse)
 # Read data from csv file and set empty slots as NAs
 job <- read.csv("NYC_jobs.csv")
 job[job == ''] <- NA
 ```
 
 ```{r}
-category <- job %>%
+categoryList <- job %>%
   select(Job.Category, Job.ID) %>%
   mutate(Job.Category = as.character(Job.Category), 
          Job.Category = gsub(",|&","", Job.Category), 
          Job.Category = word(Job.Category, 1 , 4, sep = ' '), 
          Job.Category = trimws(Job.Category,"both")) %>%
   as.data.frame() %>%
-  drop_na()%>%
+  #drop_na()%>%
   group_by(Job.Category)%>%
   mutate(Count = n()) %>%
   rename(Category = Job.Category)
 
-ggplot(category, aes(fct_relevel(fct_rev(fct_infreq(Category))))) +
+ggplot(categoryList, aes(fct_relevel(fct_rev(fct_infreq(fct_explicit_na(Category,'NA')))))) +
   geom_bar(color = "black", fill = "orange") +
   ggtitle("Job Count by Category") +
   labs(x = "Category", y = "Count") + 
