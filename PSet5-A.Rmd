@@ -107,9 +107,6 @@ categoryList <- job %>%
          Job.Category = as.vector(text_sub(Job.Category, 1 , 3, )),
          Job.Category = trimws(Job.Category,"both")) %>%
   as.data.frame() %>%
-  #drop_na()%>%
-  group_by(Job.Category)%>%
-  mutate(Count = n()) %>%
   rename(Category = Job.Category)
 
 ggplot(categoryList, aes(fct_relevel(fct_rev(fct_infreq(fct_explicit_na(Category,'NA')))))) +
