@@ -30,7 +30,7 @@ To
 
     Chengyou may will work on the topic of salary vs. agency, and he may also use the word cloud to explore the relationship between these two variables. 
     
-    Shaofeng will work on the data cleaning and mabipulation, and he try to find connections among NAs or may come up with interesting topics when doing the data cleaning. 
+    Shaofeng will work on the data cleaning and mabipulation, and he will try to find connections among NAs or may come up with interesting topics when doing the data cleaning. 
     
     Yujing will investigate on the topic of salary vs. regions, and she also wants to draw a hierarchical graph using d3 to classify regions with different level of salaries. 
     
@@ -99,24 +99,19 @@ job[job == ''] <- NA
 ```
 
 ```{r}
-category <- job$Job.Category%>%
-  as.character(.)%>%
-  unlist()%>%
-  gsub(",|&","",.)%>%
-  text_sub(.,1,3,)%>%
-  trimws(.,"both")
+category <- job %>%
+  select(Job.Category, Job.ID) %>%
+  mutate(Job.Category = as.character(Job.Category), 
+         Job.Category = gsub(",|&","", Job.Category), 
+         Job.Category = word(Job.Category, 1 , 4, sep = ' '), 
+         Job.Category = trimws(Job.Category,"both")) %>%
+  as.data.frame() %>%
+  drop_na()%>%
+  group_by(Job.Category)%>%
+  mutate(Count = n()) %>%
+  rename(Category = Job.Category)
 
-categoryList = c()
-for (i in 1:length(category)) {
-  categoryList[i] <- as.character(category[[i]])
-}
-
-categoryList<-categoryList%>%
-  data.frame(Category=., Count =1, Job.ID = job$Job.ID)%>%
-  group_by(Category)%>%
-  mutate(Count = n())
-
-ggplot(categoryList, aes(fct_relevel(fct_rev(fct_infreq(fct_explicit_na(Category, "NA"))), "NA"))) +
+ggplot(category, aes(fct_relevel(fct_rev(fct_infreq(Category))))) +
   geom_bar(color = "black", fill = "orange") +
   ggtitle("Job Count by Category") +
   labs(x = "Category", y = "Count") + 
