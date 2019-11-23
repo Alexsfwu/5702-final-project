@@ -62,7 +62,7 @@ shiny app: https://shiny.rstudio.com/
 
 (Remember that it's ok to have pieces of the project that don't fit into the chosen output format; in those cases you can provide links to the relevant material.)
 
-We decide to use the html_document as our output format.
+    We decide to use the html_document as our output format.
 
 
 ### 4. The Data
@@ -71,7 +71,7 @@ We decide to use the html_document as our output format.
 
 What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
 
-Our data come from https://data.cityofnewyork.us/City-Government/NYC-Jobs/kpav-sd4t, which contains current job postings available on the City of New York’s official jobs site http://www.nyc.gov/html/careers/html/search/search.shtml.
+Our data come from https://data.cityofnewyork.us/City-Government/NYC-Jobs/kpav-sd4t, which contains current job postings available on the City of New York’s official jobs site http://www.nyc.gov/html/careers/html/search/search.shtml. The data can be directly exported from the website so there's no obstacle for us to gather the data.
 
 The method we use for importing the data is to export the data from the website and save them in a csv file. Then we use the built-in `read.csv` method to read and store the data as a data frame for future manipulation.
 
@@ -144,11 +144,12 @@ ggplot(data = Hourly, aes(Hourly$salary)) +
   labs(x = "Salary Range", y = "Count") + 
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
 From those three plots above, we can have the following obeservations:
 1. For most of the jobs, the salaries are given annually. Meanwhile, there are also some jobs which have hourly salaries. Only a few of those jobs have daily salaries.
 2. For salaries calculated annually, it has approximately right-skewed normal distribution.
-3. For salaries calculated daily, there is no specific pattern regarding the distribution. Some jobs have a relatively low daily salaries, while others have a much higher salaries.
-4. For salaries calculated hourly, most of them has a relatively low value, but there are still some jobs have a relatively high hourly salaries.
+3. For salaries calculated daily, there is no specific pattern regarding the distribution. Some jobs have relatively low daily salaries, while others have much higher salaries.
+4. For salaries calculated hourly, most of them has a relatively low value, but there are still some jobs have relatively high hourly salaries.
 
 ```{r}
 ggplot(job, aes(x = Category, y = salary)) +
@@ -158,6 +159,7 @@ ggplot(job, aes(x = Category, y = salary)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   coord_flip()
 ```
+
 This boxplot gives us a general idea of the salary distribution for different kinds of jobs. For instance, we can see that jobs of Building Operations & Maintenance in general have lower salaries than those of Information Technology & Telecommunmications.
 
-In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salari frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
+In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salary frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
