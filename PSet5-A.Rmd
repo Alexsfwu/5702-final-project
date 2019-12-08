@@ -151,7 +151,17 @@ From those three plots above, we can have the following obeservations:
 4. For salaries calculated hourly, most of them has a relatively low value, but there are still some jobs have relatively high hourly salaries.
 
 ```{r}
-job %>%
+#converting salary on hourly scale to annual scale and daily scale to yearly scale
+#no of working days in US in a year: 261 source: 
+#no of working hours in US in a day: 8.4 hours 
+
+job = job %>% mutate(salary = if_else( Salary.Frequency == "Annual", round((Salary.Range.From + Salary.Range.To)/2,2),
+                                 if_else(Salary.Frequency == "Daily", round((Salary.Range.From + Salary.Range.To)*261/2,2),
+                                         round((Salary.Range.From + Salary.Range.To)*261*8.4/2,2))
+                                 )
+                               )
+
+nyc_jobs %>%
   filter(!is.na(Category)) %>%
   ggplot(aes(x = Category, y = salary)) +
   geom_boxplot(color = "black", fill = "orange") +
