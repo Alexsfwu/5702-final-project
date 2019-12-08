@@ -151,10 +151,12 @@ From those three plots above, we can have the following obeservations:
 4. For salaries calculated hourly, most of them has a relatively low value, but there are still some jobs have relatively high hourly salaries.
 
 ```{r}
-ggplot(job, aes(x = Category, y = salary)) +
+job %>%
+  filter(!is.na(Category)) %>%
+  ggplot(aes(x = Category, y = salary)) +
   geom_boxplot(color = "black", fill = "orange") +
   ggtitle("Distribution of Salaries w.r.t Different Categories") + 
-  labs(x = "Salary", y = "Category") + 
+  labs(x = "Category", y = "Salary") + 
   theme(plot.title = element_text(hjust = 0.5)) +
   coord_flip()
 ```
