@@ -166,3 +166,5 @@ This boxplot gives us a general idea of the salary distribution for different ki
 There are a lot of information in the job description and job requirements. Extracting the useful information from these features could be a challenging work.
 
 In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salary frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
+
+Word Frequency and WordCloud from here
