@@ -1,0 +1,6 @@
+"0","ggplot(job, aes(x = Category, y = salary)) +"
+"0","  geom_boxplot(color = ""black"", fill = ""orange"") +"
+"0","  ggtitle(""Distribution of Salaries w.r.t Different Categories"") + "
+"0","  labs(x = ""Salary"", y = ""Category"") + "
+"0","  theme(plot.title = element_text(hjust = 0.5)) +"
+"0","  coord_flip()"

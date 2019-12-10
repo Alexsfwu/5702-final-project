@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1575834994000.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1346496342",
+    "id" : "C2AFF50C",
+    "lastKnownWriteTime" : 1575990891,
+    "last_content_update" : 1575990891776,
+    "path" : "/cloud/project/PSet5-A.Rmd",
+    "project_path" : "PSet5-A.Rmd",
+    "properties" : {
+        "cursorPosition" : "169,29",
+        "last_setup_crc32" : "92568fca472a4259",
+        "scrollLine" : "165"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
