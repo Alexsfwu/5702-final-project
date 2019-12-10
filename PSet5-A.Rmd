@@ -177,4 +177,51 @@ There are a lot of information in the job description and job requirements. Extr
 
 In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salary frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
 
-Word Frequency and WordCloud from here
+Word Frequency and WordCloud from here:
+```{r}
+library(tm)
+library(SnowballC)
+library(wordcloud)
+library(wordcloud2)
+library(RColorBrewer)
+mini <- Corpus(VectorSource(job$Minimum.Qual.Requirements))
+# inspect(mini)
+```
+```{r}
+toSpace <- content_transformer(function (x , pattern) gsub(pattern, " ", x))
+mini <- tm_map(mini, toSpace, "/")
+mini <- tm_map(mini, toSpace, "@")
+mini <- tm_map(mini, toSpace, "\\|")
+mini <- tm_map(mini, content_transformer(tolower))
+```
+```{r}
+# Remove numbers
+mini <- tm_map(mini, removeNumbers)
+# Remove english common stopwords
+mini <- tm_map(mini, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your stopwords as a character vector
+mini <- tm_map(mini, removeWords, c("blabla1", "blabla2")) 
+# Remove punctuations
+mini <- tm_map(mini, removePunctuation)
+# Eliminate extra white spaces
+mini <- tm_map(mini, stripWhitespace)
+# Text stemming
+mini <- tm_map(mini, stemDocument)
+```
+```{r}
+dtm <- TermDocumentMatrix(mini)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m), decreasing=TRUE)
+d <- data.frame(word = names(v), freq=v)
+head(d, 10)
+```
+```{r}
+set.seed(1234)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+```{r}
+wordcloud2(data = d)
+```
