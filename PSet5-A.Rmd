@@ -94,7 +94,7 @@ library(magrittr)
 library(forcats)
 library(tidyverse)
 # Read data from csv file and set empty slots as NAs
-job <- read.csv("data/raw/NYC_jobs.csv")
+job <- read.csv("NYC_jobs.csv")
 job[job == ''] <- NA
 ```
 
