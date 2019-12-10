@@ -161,7 +161,7 @@ job = job %>% mutate(salary = if_else( Salary.Frequency == "Annual", round((Sala
                                  )
                                )
 
-nyc_jobs %>%
+job %>%
   filter(!is.na(Category)) %>%
   ggplot(aes(x = Category, y = salary)) +
   geom_boxplot(color = "black", fill = "orange") +
