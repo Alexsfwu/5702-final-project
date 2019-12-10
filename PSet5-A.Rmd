@@ -1,19 +1,42 @@
 ---
-title: "EDAV Fall 2019 PSet 5, part A"
+title: "EDAV Fall 2019 Final Project"
 author: "Shaofeng Wu, Chengyou Ju, Mingrui Liu, Yujing Song"
 output:
   html_document:
     df_print: paged
 ---
+
+# Outline
+1. Introduction
+
+  + Team set
+  + Problems statement
+
+2. Data exploration
+
+  + Data description
+  + Short Summary of Initial Investigations
+
+3. Analyzing part
+  
+  + Region distribution of salaries
+(Our work is here, please fill it out when you are doing your part.  Thank you:) )
+
+4. Conclusion
+
+5. Future works
+
+6. Requirements and References
+
+
 ```{r, include=FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 ```
 
-This assignment is designed to help you get started on the final project. Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
-    
-### 1. The Team
 
-[2 points]
+# 1. Introduction
+
+### 1.1 The Team
 
 a) Who's on the team? (Include names and UNIs)
     
@@ -32,13 +55,11 @@ To
     
     Shaofeng will work on the data cleaning and mabipulation, and he will try to find connections among NAs or may come up with interesting topics when doing the data cleaning. 
     
-    Yujing will investigate on the topic of salary vs. regions, and she also wants to draw a hierarchical graph using d3 to classify regions with different level of salaries. 
+    Yujing will investigate on the topic of salary vs. regions, and she also wants to draw a map to show the salary's region distribution.
     
     Mingrui will focus on the topic of salary vs. job category. Using different groups of job category to classify different levels of salaries may be something could be explored.
     
-### 2. The Questions
-
-[6 points]
+### 1.2 The Problem Statement
 
 List three questions that you hope you will be able to answer from your research.
 
@@ -51,30 +72,10 @@ List three questions that you hope you will be able to answer from your research
     c) The relationship between salary vs. agency.
 
 
-### 3. Which output format do you plan to use to submit the project? 
 
-[2 points]
+# 2. Data Exploration
 
-(You don't have to use the same format for this assignment -- PSet 5, part A -- and the final project itself.)
-
-Choices are:
-
-pdf_document  
-
-html_document  
-
-bookdown book: https://bookdown.org/yihui/bookdown/
-
-shiny app: https://shiny.rstudio.com/  
-
-(Remember that it's ok to have pieces of the project that don't fit into the chosen output format; in those cases you can provide links to the relevant material.)
-
-    We decide to use the html_document as our output format.
-
-
-### 4. The Data
-
-[5 points]
+### 2.1 The Data Discription
 
 What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
 
@@ -83,9 +84,7 @@ Our data come from https://data.cityofnewyork.us/City-Government/NYC-Jobs/kpav-s
 The method we use for importing the data is to export the data from the website and save them in a csv file. Then we use the built-in `read.csv` method to read and store the data as a data frame for future manipulation.
 
 
-### 5. Provide a short summary, including 2-3 graphs, of your initial investigations. 
-
-[10 points]
+### 2.2 Short Summary of Initial Investigations
 
 ```{r}
 library(dplyr)
@@ -164,3 +163,47 @@ This boxplot gives us a general idea of the salary distribution for different ki
 There are a lot of information in the job description and job requirements. Extracting the useful information from these features could be a challenging work.
 
 In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salary frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
+
+# 3. Analyzing part
+
+## 3.1Region distribution of salaries
+(Song's working on this......)
+
+
+# 4. Conclusion
+
+
+
+# 5. Future Works
+
+(If we are provided more time, what we want to do?)
+
+
+
+# 6. Requirements and References
+
+## 6.1 Reqirements
+
+### 6.1.1 File format
+(You don't have to use the same format for this assignment -- PSet 5, part A -- and the final project itself.)
+
+Choices are:
+
+pdf_document  
+
+html_document  
+
+bookdown book: https://bookdown.org/yihui/bookdown/
+
+shiny app: https://shiny.rstudio.com/  
+
+(Remember that it's ok to have pieces of the project that don't fit into the chosen output format; in those cases you can provide links to the relevant material.)
+
+    We decide to use the html_document as our output format.
+
+### 6.1.2 Instructions
+Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
+
+
+### 6.2 References
+
