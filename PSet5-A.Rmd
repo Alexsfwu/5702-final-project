@@ -32,6 +32,10 @@ As mentioned in the previous section, since the dataset is stored in a neat `.cs
 ```{r}
 job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
+
+##remove duplicate jobs 
+job <-job[!duplicated(job), ]
+
 dim(job) # Check the dimension of the data frame
 ```
 
