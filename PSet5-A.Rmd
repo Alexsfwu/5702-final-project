@@ -37,14 +37,13 @@ job[job == ''] <- NA # Set empty slots as NAs
 job <-job[!duplicated(job), ] %>%
   filter(!is.na(Job.Category))
 
-
 dim(job) # Check the dimension of the data frame
 ```
 
 
 
 
-## IV. Missing values
+## IV. Missing values 
 
 As mentioned above, we fill all empty slots in the original dataset with NAs, and we will keep these NAs in our data frame. Later, depends on our tasks, we will decide whether to drop the NAs or not.
 
