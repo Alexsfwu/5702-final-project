@@ -4,8 +4,8 @@ author: "Shaofeng Wu, Chengyou Ju, Mingrui Liu, Yujing Song"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+```{r, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 ```
 
 ## I. Introduction
@@ -30,17 +30,12 @@ The only problem about the data is that in the origin `.csv` file, there are ple
 
 As mentioned in the previous section, since the dataset is stored in a neat `.csv` file, we only need to read the file using the `read.csv` method and store the data in the data frame `job`. Later, when we need some specific attributes of the job postings dataset, we can use simply `$` or pipes and the `%>%` operator to extract the columns we need.
 ```{r}
-<<<<<<< HEAD
-# Read data from csv file
-job <- read.csv("./data/raw/NYC_jobs.csv")
-# Set empty slots as NAs
-job[job == ''] <- NA
-=======
-job <- read.csv("NYC_jobs.csv") # Read data from csv file
+job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 dim(job) # Check the dimension of the data frame
->>>>>>> parent of b8cc96a... change category list
 ```
+
+
 
 
 ## IV. Missing values
@@ -49,25 +44,6 @@ As mentioned above, we fill all empty slots in the original dataset with NAs, an
 
 
 ## V. Results
-```{r}
-library(tm)
-job_docs <- VCorpus(VectorSource(job))
-# inspect(job_docs)
-job_mini_req <- VCorpus(VectorSource(job$Minimum.Qual.Requirements))
-# inspect(job_mini_req)
-```
-```{r}
-tech_jobs <- subset(job, Job.Category == "Information Technology & Telecommunications")
-job_tech_mini_req <- VCorpus(VectorSource(tech_jobs$Minimum.Qual.Requirements))
-# inspect(job_tech_mini_req)
-```
-
-
-
-
-
-
-
 
 
 ## VI. Interactive component
@@ -98,6 +74,16 @@ List three questions that you hope you will be able to answer from your research
 
     c) The relationship between salary vs. agency.
 
+
+
+# 2. Data Exploration
+
+### 2.1 The Data Discription
+
+
+
+
+
 ### 2.2 Short Summary of Initial Investigations
 
 ```{r}
@@ -111,15 +97,25 @@ library(tidyverse)
 
 ```{r}
 categoryList <- job %>%
+  filter(!is.na(Job.Category))%>%
   select(Job.Category, Job.ID) %>%
-  mutate(Job.Category = as.character(Job.Category), 
-         Job.Category = gsub(",|&","", Job.Category),
-         Job.Category = as.vector(text_sub(Job.Category, 1 , 3, )),
-         Job.Category = trimws(Job.Category,"both")) %>%
-  rename(Category = Job.Category)
+  mutate(Job.Category = as.character(Job.Category),
+         Job.Category = str_split(Job.Category, ",|&|,&"))
 
-ggplot(categoryList, aes(fct_relevel(fct_rev(fct_infreq(fct_explicit_na(Category,'NA')))))) +
-  geom_bar(color = "black", fill = "orange") +
+popular_category <-
+  as.data.frame(unlist(categoryList["Job.Category"],use.names=FALSE))%>%
+  set_colnames("Category")%>%
+  mutate(Category = trimws(Category,"both")) %>%
+  filter(!is.na(Category))%>%
+  filter(Category !="")%>%
+  filter(is.character(Category ))  %>%
+  group_by(Category) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  slice(1:25)
+  
+ggplot(popular_category,aes(x = fct_reorder(Category,count), y = count))+
+  geom_col(color = "black", fill = "orange")+
   ggtitle("Job Count by Category") +
   labs(x = "Category", y = "Count") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
@@ -127,10 +123,10 @@ ggplot(categoryList, aes(fct_relevel(fct_rev(fct_infreq(fct_explicit_na(Category
 ```
 
 ```{r}
-job <- job%>%
+job_test <- job%>%
   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)%>%
-  cbind(categoryList$Category) %>%
-  rename(Category = `categoryList$Category`)
+  cbind(categoryList$Job.Category) %>%
+  rename(categoryList = `categoryList$Job.Category`)
 
 Annual = job[job$Salary.Frequency=="Annual",]
 ggplot(data = Annual, aes(Annual$salary)) +
@@ -166,32 +162,42 @@ From those three plots above, we can have the following obeservations:
 #converting salary on hourly scale anddaily scale to yearly scale
 #no of working days in US in a year: 261 source: 
 #no of working hours in US in a day: 8.4 hours 
-
-job = job %>% mutate(salary = if_else( Salary.Frequency == "Annual", round((Salary.Range.From + Salary.Range.To)/2,2),
+job <- job %>% mutate(Annual_salary = if_else( Salary.Frequency == "Annual", round((Salary.Range.From + Salary.Range.To)/2,2),
                                  if_else(Salary.Frequency == "Daily", round((Salary.Range.From + Salary.Range.To)*261/2,2),
                                          round((Salary.Range.From + Salary.Range.To)*261*8.4/2,2))
                                  )
                                )
-
-job %>%
-  filter(!is.na(Category)) %>%
-  ggplot(aes(x = reorder(Category,salary,FUN=mean), y = salary)) +
-  geom_boxplot(color = "black", fill = "orange") +
-  ggtitle("Distribution of Salaries w.r.t Different Categories") + 
-<<<<<<< HEAD
-  labs(x = "Category", y = "Annual Salary") + 
-=======
-  labs(x = "Category", y = "Anual Salary") + 
->>>>>>> parent of b8cc96a... change category list
-  theme(plot.title = element_text(hjust = 0.5)) +
+##make the list of category of each job id as a single observations 
+df <- data.frame( Job.ID= numeric(), category = character())
+for(i in 1:dim(categoryList)[1]){
+  cate <- unlist(categoryList[i,1])
+  for (j in 1:length(cate)){
+    single <- trimws(cate[j],"both")
+    if( !is.na(single)){
+      df <- rbind(df, data.frame(Job.ID = categoryList[i,2], category = single))
+    }
+  }
+}
+## all job posting with only category, anuual salary and job id
+cate_salary_job <-job%>%
+  select(Job.ID,Annual_salary)
+##job category and salary
+df2<-df%>%
+  filter(category!="")%>%
+  filter(category %in% popular_category$Category)%>%
+  merge(.,cate_salary_job, by = "Job.ID")%>%
+  unique()
+ggplot(df2,aes(x = reorder(category,Annual_salary,FUN=mean), y = Annual_salary)) +
+geom_boxplot(color = "black", fill = "orange") +
+ggtitle("Distribution of Salaries w.r.t Different Categories") + 
+labs(x = "Category", y = "Anual Salary") + 
+theme(plot.title = element_text(hjust = 0.5)) +
   coord_flip()
 ```
 
-<<<<<<< HEAD
-This boxplot gives us a general idea of the salary distribution for different kinds of jobs. For instance, we can see that jobs of Building Operations & Maintenance in general have lower salaries than those of Information Technology & Telecommunmications.
-=======
+
+
 This boxplot gives us a general idea of the salary distribution for different kinds of jobs from the highest highest salary to lowest mean salary. For instance, we can see that jobs of Building Operations & Maintenance in general have lower salaries than those of Information Technology & Telecommunmications.
->>>>>>> parent of b8cc96a... change category list
 
 There are a lot of information in the job description and job requirements. Extracting the useful information from these features could be a challenging work.
 
@@ -204,13 +210,12 @@ In conclusion, these are all we have done right now. We identify the number of j
 
 Word Frequency and WordCloud from here:
 ```{r}
-
+library(tm)
 library(SnowballC)
 library(wordcloud)
 library(wordcloud2)
 library(RColorBrewer)
 mini <- Corpus(VectorSource(job$Minimum.Qual.Requirements))
-
 # inspect(mini)
 ```
 ```{r}
@@ -254,11 +259,16 @@ wordcloud2(data = d)
 
 
 ## 3.2 Region distribution of salaries
-(Song's working on this......)
 
 # 4. Conclusion
 
+##########
+```{r}
+m2<-as.data.frame(t(m))
+m2$id = job$Job.ID
+```
 
+#########
 
 # 5. Future Works
 
@@ -292,4 +302,3 @@ Be sure to review the final project instructions (https://edav.info/project.html
 
 
 ### 6.2 References
-
