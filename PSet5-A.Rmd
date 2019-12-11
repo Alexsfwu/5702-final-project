@@ -1,29 +1,53 @@
 ---
-title: "EDAV Fall 2019 PSet 5, part A"
+title: "EDAV Fall 2019 Final Project Group 23"
 author: "Shaofeng Wu, Chengyou Ju, Mingrui Liu, Yujing Song"
-output:
-  html_document:
-    df_print: paged
+output: html_document
 ---
+
 ```{r, include=FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 ```
 
-This assignment is designed to help you get started on the final project. Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
-    
-### 1. The Team
+## I. Introduction
 
-[2 points]
+This project is created by Shaofeng Wu (sw3428), Chengyou Ju (cj2624), Mingrui Liu (ml4404), Yujing Song (ys3251) for STAT GR5702 Final Project Group 23.
 
-a) Who's on the team? (Include names and UNIs)
-    
-    Shaofeng Wu, sw3428
-    
-    Chengyou Ju, cj2624
-    
-    Mingrui Liu, ml4404
-    
-    Yujing Song, ys3251
+As graduate students who are actively seeking jobs and internships, we come up with the idea that we can choose a topic related to the current employment situation in New York. Therefore, after doing some research, we decide to focus on studying the latest job postings in New York. We want to see, for instance, if there is a relationship between job categories and salaries, what skills are preferred by a particular kind of jobs, or if locations matter while choosing a job.
+
+
+## II. Data sources
+
+Our data come from https://data.cityofnewyork.us/City-Government/NYC-Jobs/kpav-sd4t, which contains current job postings available on the City of New York’s official jobs site http://www.nyc.gov/html/careers/html/search/search.shtml. 
+
+Mingrui is responsible for looking for and collecting the data. Since the data can be directly exported from the website as a `.csv` file, there is no major obstacle for us when gathering the data. After downloading the data from the website, we use the built-in `read.csv` method to read and store the data as a data frame for future manipulation.
+
+This data frame has 3040 oberservations of 28 variables. Each entry represents a job posting on the website, while the columns represent the information about each job, including Business Title, Salary Range, Job Description, etc.
+
+The only problem about the data is that in the origin `.csv` file, there are plenty of empty entries. Therefore, when we read data from the file and store as a data frame, we fill all these blank entries with NAs.
+
+
+## III. Data transformation
+
+As mentioned in the previous section, since the dataset is stored in a neat `.csv` file, we only need to read the file using the `read.csv` method and store the data in the data frame `job`. Later, when we need some specific attributes of the job postings dataset, we can use simply `$` or pipes and the `%>%` operator to extract the columns we need.
+```{r}
+job <- read.csv("NYC_jobs.csv") # Read data from csv file
+job[job == ''] <- NA # Set empty slots as NAs
+dim(job) # Check the dimension of the data frame
+```
+
+
+## IV. Missing values
+
+As mentioned above, we fill all empty slots in the original dataset with NAs, and we will keep these NAs in our data frame. Later, depends on our tasks, we will decide whether to drop the NAs or not.
+
+
+## V. Results
+
+
+## VI. Interactive component
+
+
+## VII. Conclusion
 
 b) How do you plan to divide up the work? (Grading is on a group basis. The point of asking is to encourage you to think about this.)
 To
@@ -32,13 +56,11 @@ To
     
     Shaofeng will work on the data cleaning and mabipulation, and he will try to find connections among NAs or may come up with interesting topics when doing the data cleaning. 
     
-    Yujing will investigate on the topic of salary vs. regions, and she also wants to draw a hierarchical graph using d3 to classify regions with different level of salaries. 
+    Yujing will investigate on the topic of salary vs. regions, and she also wants to draw a map to show the salary's region distribution.
     
     Mingrui will focus on the topic of salary vs. job category. Using different groups of job category to classify different levels of salaries may be something could be explored.
     
-### 2. The Questions
-
-[6 points]
+### 1.2 The Problem Statement
 
 List three questions that you hope you will be able to answer from your research.
 
@@ -51,41 +73,16 @@ List three questions that you hope you will be able to answer from your research
     c) The relationship between salary vs. agency.
 
 
-### 3. Which output format do you plan to use to submit the project? 
 
-[2 points]
+# 2. Data Exploration
 
-(You don't have to use the same format for this assignment -- PSet 5, part A -- and the final project itself.)
-
-Choices are:
-
-pdf_document  
-
-html_document  
-
-bookdown book: https://bookdown.org/yihui/bookdown/
-
-shiny app: https://shiny.rstudio.com/  
-
-(Remember that it's ok to have pieces of the project that don't fit into the chosen output format; in those cases you can provide links to the relevant material.)
-
-    We decide to use the html_document as our output format.
+### 2.1 The Data Discription
 
 
-### 4. The Data
-
-[5 points]
-
-What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
-
-Our data come from https://data.cityofnewyork.us/City-Government/NYC-Jobs/kpav-sd4t, which contains current job postings available on the City of New York’s official jobs site http://www.nyc.gov/html/careers/html/search/search.shtml. The data can be directly exported from the website so there's no obstacle for us to gather the data.
-
-The method we use for importing the data is to export the data from the website and save them in a csv file. Then we use the built-in `read.csv` method to read and store the data as a data frame for future manipulation.
 
 
-### 5. Provide a short summary, including 2-3 graphs, of your initial investigations. 
 
-[10 points]
+### 2.2 Short Summary of Initial Investigations
 
 ```{r}
 library(dplyr)
@@ -94,9 +91,6 @@ library(ggplot2)
 library(magrittr)
 library(forcats)
 library(tidyverse)
-# Read data from csv file and set empty slots as NAs
-job <- read.csv("data/raw/NYC_jobs.csv")
-job[job == ''] <- NA
 ```
 
 ```{r}
@@ -151,7 +145,7 @@ From those three plots above, we can have the following obeservations:
 4. For salaries calculated hourly, most of them has a relatively low value, but there are still some jobs have relatively high hourly salaries.
 
 ```{r}
-#converting salary on hourly scale to annual scale and daily scale to yearly scale
+#converting salary on hourly scale anddaily scale to yearly scale
 #no of working days in US in a year: 261 source: 
 #no of working hours in US in a day: 8.4 hours 
 
@@ -161,12 +155,12 @@ job = job %>% mutate(salary = if_else( Salary.Frequency == "Annual", round((Sala
                                  )
                                )
 
-nyc_jobs %>%
+job %>%
   filter(!is.na(Category)) %>%
-  ggplot(aes(x = Category, y = salary)) +
+  ggplot(aes(x = reorder(Category,salary,FUN=mean), y = salary)) +
   geom_boxplot(color = "black", fill = "orange") +
   ggtitle("Distribution of Salaries w.r.t Different Categories") + 
-  labs(x = "Category", y = "Salary") + 
+  labs(x = "Category", y = "Anual Salary") + 
   theme(plot.title = element_text(hjust = 0.5)) +
   coord_flip()
 ```
@@ -177,4 +171,98 @@ There are a lot of information in the job description and job requirements. Extr
 
 In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salary frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
 
-Word Frequency and WordCloud from here
+
+# 3. Analyzing part
+
+## 3.1 Word Cloud
+
+Word Frequency and WordCloud from here:
+```{r}
+library(tm)
+library(SnowballC)
+library(wordcloud)
+library(wordcloud2)
+library(RColorBrewer)
+mini <- Corpus(VectorSource(job$Minimum.Qual.Requirements))
+# inspect(mini)
+```
+```{r}
+toSpace <- content_transformer(function (x , pattern) gsub(pattern, " ", x))
+mini <- tm_map(mini, toSpace, "/")
+mini <- tm_map(mini, toSpace, "@")
+mini <- tm_map(mini, toSpace, "\\|")
+mini <- tm_map(mini, content_transformer(tolower))
+```
+```{r}
+# Remove numbers
+mini <- tm_map(mini, removeNumbers)
+# Remove english common stopwords
+mini <- tm_map(mini, removeWords, stopwords("english"))
+# Remove your own stop word
+# specify your stopwords as a character vector
+mini <- tm_map(mini, removeWords, c("blabla1", "blabla2")) 
+# Remove punctuations
+mini <- tm_map(mini, removePunctuation)
+# Eliminate extra white spaces
+mini <- tm_map(mini, stripWhitespace)
+# Text stemming
+mini <- tm_map(mini, stemDocument)
+```
+```{r}
+dtm <- TermDocumentMatrix(mini)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m), decreasing=TRUE)
+d <- data.frame(word = names(v), freq=v)
+head(d, 10)
+```
+```{r}
+set.seed(1234)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+```{r}
+wordcloud2(data = d)
+```
+
+
+## 3.2 Region distribution of salaries
+(Song's working on this......)
+
+# 4. Conclusion
+
+
+
+# 5. Future Works
+
+(If we are provided more time, what we want to do?)
+
+
+
+# 6. Requirements and References
+
+## 6.1 Reqirements
+
+### 6.1.1 File format
+(You don't have to use the same format for this assignment -- PSet 5, part A -- and the final project itself.)
+
+Choices are:
+
+pdf_document  
+
+html_document  
+
+bookdown book: https://bookdown.org/yihui/bookdown/
+
+shiny app: https://shiny.rstudio.com/  
+
+(Remember that it's ok to have pieces of the project that don't fit into the chosen output format; in those cases you can provide links to the relevant material.)
+
+    We decide to use the html_document as our output format.
+
+### 6.1.2 Instructions
+Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
+
+
+### 6.2 References
+
