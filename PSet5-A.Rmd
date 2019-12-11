@@ -127,13 +127,13 @@ ggplot(popular_category,aes(x = fct_reorder(Category,count), y = count))+
 ```
 
 ```{r}
-job_test <- job%>%
-  mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)%>%
-  cbind(categoryList$Job.Category) %>%
-  rename(categoryList = `categoryList$Job.Category`)
+# job_test <- job%>%
+#   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)%>%
+#   cbind(categoryList$Job.Category) %>%
+#   rename(categoryList = `categoryList$Job.Category`)
 
 Annual = job[job$Salary.Frequency=="Annual",]
-ggplot(data = Annual, aes(Annual$salary)) +
+ggplot(Annual, aes(salary)) +
   geom_histogram(bins = 40, color = "black", fill = "orange") +
   ggtitle("Salary Distribution (Annual)") + 
   labs(x = "Salary Range", y = "Count") + 
