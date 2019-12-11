@@ -408,9 +408,11 @@ tech_job %>%
 
 tech_job %>%
   group_by(Civil.Service.Title) %>%
-  mutate(mean_salary = mean(salary)) %>%
-  ggplot(aes(x = reorder(Civil.Service.Title, -mean_salary), y = mean_salary)) +
-  geom_bar(stat = 'identity') + 
+  summarise(mean_salary = mean(salary)) %>%
+  ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
+  geom_col() + 
+  labs(x = 'Civil service title', 
+       y = 'Average annual salary') + 
   coord_flip()
 ```
 
