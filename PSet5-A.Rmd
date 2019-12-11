@@ -375,6 +375,46 @@ wordcloud2(data = d)
 
 ## 3.2 Region distribution of salaries
 
+## 3.3 Technology job posting trends
+
+```{r}
+tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
+
+tech_job %>%
+  filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
+  ggplot(aes(Full.Time.Part.Time.indicator)) + 
+  geom_bar() +
+  labs(x = "Full time and part time")
+
+tech_job %>%
+  filter(!is.na(tech_job$Salary.Frequency)) %>%
+  ggplot(aes(Salary.Frequency)) + 
+  geom_bar(stat = 'count') +
+  labs(x = "Salary frequency")
+
+tech_job %>%
+  filter(!is.na(tech_job$Civil.Service.Title)) %>%
+  ggplot(aes(fct_rev(fct_infreq(Civil.Service.Title)))) + 
+  geom_bar(stat = 'count') +
+  labs(x = "Civil service title") + 
+  coord_flip()
+
+tech_job %>%
+  filter(!is.na(tech_job$Work.Location)) %>%
+  ggplot(aes(fct_rev(fct_infreq(Work.Location)))) + 
+  geom_bar(stat = 'count') +
+  labs(x = "Work location") + 
+  coord_flip()
+
+tech_job %>%
+  group_by(Civil.Service.Title) %>%
+  mutate(mean_salary = mean(salary)) %>%
+  ggplot(aes(x = reorder(Civil.Service.Title, -mean_salary), y = mean_salary)) +
+  geom_bar(stat = 'identity') + 
+  coord_flip()
+```
+
+
 # 4. Conclusion
 
 
