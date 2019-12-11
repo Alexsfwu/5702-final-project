@@ -1,6 +1,0 @@
-"0","Hourly = job[job$Salary.Frequency==""Hourly"",]"
-"0","ggplot(data = Hourly, aes(Hourly$salary)) +"
-"0","  geom_histogram(bins = 40, color = ""black"", fill = ""orange"") +"
-"0","  ggtitle(""Salary Distribution (Hourly)"") + "
-"0","  labs(x = ""Salary Range"", y = ""Count"") + "
-"0","  theme(plot.title = element_text(hjust = 0.5))"
