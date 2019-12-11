@@ -30,6 +30,15 @@ The only problem about the data is that in the origin `.csv` file, there are ple
 
 As mentioned in the previous section, since the dataset is stored in a neat `.csv` file, we only need to read the file using the `read.csv` method and store the data in the data frame `job`. Later, when we need some specific attributes of the job postings dataset, we can use simply `$` or pipes and the `%>%` operator to extract the columns we need.
 ```{r}
+library(dplyr)
+library(corpus)
+library(ggplot2)
+library(magrittr)
+library(forcats)
+library(tidyverse)
+```
+
+```{r}
 job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
@@ -91,14 +100,6 @@ List three questions that you hope you will be able to answer from your research
 
 ### 2.2 Short Summary of Initial Investigations
 
-```{r}
-library(dplyr)
-library(corpus)
-library(ggplot2)
-library(magrittr)
-library(forcats)
-library(tidyverse)
-```
 
 ```{r}
 categoryList <- job %>%
@@ -128,10 +129,10 @@ ggplot(popular_category,aes(x = fct_reorder(Category,count), y = count))+
 ```
 
 ```{r}
-# job_test <- job%>%
-#   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)%>%
-#   cbind(categoryList$Job.Category) %>%
-#   rename(categoryList = `categoryList$Job.Category`)
+ job<- job%>%
+   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)
+   #cbind(categoryList$Job.Category) 
+   #rename(categoryList = `categoryList$Job.Category`)
 
 Annual = job[job$Salary.Frequency=="Annual",]
 ggplot(Annual, aes(salary)) +
