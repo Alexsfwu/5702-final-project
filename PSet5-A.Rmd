@@ -1,52 +1,53 @@
 ---
-title: "EDAV Fall 2019 Final Project"
+title: "EDAV Fall 2019 Final Project Group 23"
 author: "Shaofeng Wu, Chengyou Ju, Mingrui Liu, Yujing Song"
-output:
-  html_document:
-    df_print: paged
+output: html_document
 ---
-
-# Outline
-1. Introduction
-
-  + Team set
-  + Problems statement
-
-2. Data exploration
-
-  + Data description
-  + Short Summary of Initial Investigations
-
-3. Analyzing part
-  
-  + Region distribution of salaries
-(Our work is here, please fill it out when you are doing your part.  Thank you:) )
-
-4. Conclusion
-
-5. Future works
-
-6. Requirements and References
-
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
 ```
 
+## I. Introduction
 
-# 1. Introduction
+This project is created by Shaofeng Wu (sw3428), Chengyou Ju (cj2624), Mingrui Liu (ml4404), Yujing Song (ys3251) for STAT GR5702 Final Project Group 23.
 
-### 1.1 The Team
+As graduate students who are actively seeking jobs and internships, we come up with the idea that we can choose a topic related to the current employment situation in New York. Therefore, after doing some research, we decide to focus on studying the latest job postings in New York. We want to see, for instance, if there is a relationship between job categories and salaries, what skills are preferred by a particular kind of jobs, or if locations matter while choosing a job.
 
-a) Who's on the team? (Include names and UNIs)
-    
-    Shaofeng Wu, sw3428
-    
-    Chengyou Ju, cj2624
-    
-    Mingrui Liu, ml4404
-    
-    Yujing Song, ys3251
+
+## II. Data sources
+
+Our data come from https://data.cityofnewyork.us/City-Government/NYC-Jobs/kpav-sd4t, which contains current job postings available on the City of New York’s official jobs site http://www.nyc.gov/html/careers/html/search/search.shtml. 
+
+Mingrui is responsible for looking for and collecting the data. Since the data can be directly exported from the website as a `.csv` file, there is no major obstacle for us when gathering the data. After downloading the data from the website, we use the built-in `read.csv` method to read and store the data as a data frame for future manipulation.
+
+This data frame has 3040 oberservations of 28 variables. Each entry represents a job posting on the website, while the columns represent the information about each job, including Business Title, Salary Range, Job Description, etc.
+
+The only problem about the data is that in the origin `.csv` file, there are plenty of empty entries. Therefore, when we read data from the file and store as a data frame, we fill all these blank entries with NAs.
+
+
+## III. Data transformation
+
+As mentioned in the previous section, since the dataset is stored in a neat `.csv` file, we only need to read the file using the `read.csv` method and store the data in the data frame `job`. Later, when we need some specific attributes of the job postings dataset, we can use simply `$` or pipes and the `%>%` operator to extract the columns we need.
+```{r}
+job <- read.csv("NYC_jobs.csv") # Read data from csv file
+job[job == ''] <- NA # Set empty slots as NAs
+dim(job) # Check the dimension of the data frame
+```
+
+
+## IV. Missing values
+
+As mentioned above, we fill all empty slots in the original dataset with NAs, and we will keep these NAs in our data frame. Later, depends on our tasks, we will decide whether to drop the NAs or not.
+
+
+## V. Results
+
+
+## VI. Interactive component
+
+
+## VII. Conclusion
 
 b) How do you plan to divide up the work? (Grading is on a group basis. The point of asking is to encourage you to think about this.)
 To
@@ -77,11 +78,8 @@ List three questions that you hope you will be able to answer from your research
 
 ### 2.1 The Data Discription
 
-What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
 
-Our data come from https://data.cityofnewyork.us/City-Government/NYC-Jobs/kpav-sd4t, which contains current job postings available on the City of New York’s official jobs site http://www.nyc.gov/html/careers/html/search/search.shtml. The data can be directly exported from the website so there's no obstacle for us to gather the data.
 
-The method we use for importing the data is to export the data from the website and save them in a csv file. Then we use the built-in `read.csv` method to read and store the data as a data frame for future manipulation.
 
 
 ### 2.2 Short Summary of Initial Investigations
@@ -93,9 +91,6 @@ library(ggplot2)
 library(magrittr)
 library(forcats)
 library(tidyverse)
-# Read data from csv file and set empty slots as NAs
-job <- read.csv("NYC_jobs.csv")
-job[job == ''] <- NA
 ```
 
 ```{r}
@@ -179,7 +174,7 @@ In conclusion, these are all we have done right now. We identify the number of j
 
 # 3. Analyzing part
 
-## 3.1 Word Could
+## 3.1 Word Cloud
 
 Word Frequency and WordCloud from here:
 ```{r}
