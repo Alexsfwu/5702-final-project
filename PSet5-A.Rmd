@@ -42,15 +42,12 @@ library(tidyverse)
 job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
-##remove duplicate jobs 
+## Remove duplicate jobs 
 job <-job[!duplicated(job), ] %>%
   filter(!is.na(Job.Category))
 
-
 dim(job) # Check the dimension of the data frame
 ```
-
-
 
 
 ## IV. Missing values
@@ -59,6 +56,125 @@ As mentioned above, we fill all empty slots in the original dataset with NAs, an
 
 
 ## V. Results
+```{r}
+library(tm)
+job_docs <- VCorpus(VectorSource(job)) # Whole dataset
+# inspect(job_docs)
+job_mini_req <- VCorpus(VectorSource(job$Minimum.Qual.Requirements)) # Minimum Qual Requirements
+# inspect(job_mini_req)
+job_pref_skil <- VCorpus(VectorSource(job$Preferred.Skills)) # Preferred Skills
+# inspect(job_pref_skil)
+```
+```{r}
+# Tech Jobs
+tech_jobs <- subset(job, Job.Category == "Information Technology & Telecommunications")
+dim(tech_jobs) # There should be 28 jobs related to technology
+job_tech_mini_req <- VCorpus(VectorSource(tech_jobs$Minimum.Qual.Requirements))
+# inspect(job_tech_mini_req)
+job_tech_pref_skil <- VCorpus(VectorSource(tech_jobs$Preferred.Skills))
+# inspect(job_tech_pref_skil)
+```
+```{r}
+# All Jobs cross Minimum Qual Requirements
+# toSpace <- content_transformer(function (x , pattern) gsub(pattern, " ", x))
+# job_mini_req <- tm_map(job_mini_req, toSpace, "/")
+# job_mini_req <- tm_map(job_mini_req, toSpace, "@")
+# job_mini_req <- tm_map(job_mini_req, toSpace, "\\|")
+job_mini_req <- tm_map(job_mini_req, content_transformer(tolower))
+job_mini_req <- tm_map(job_mini_req, removeNumbers)
+job_mini_req <- tm_map(job_mini_req, removeWords, stopwords("english"))
+job_mini_req <- tm_map(job_mini_req, removeWords, c("the", "one", "two", "for", "must")) 
+job_mini_req <- tm_map(job_mini_req, removePunctuation)
+job_mini_req <- tm_map(job_mini_req, stripWhitespace)
+# job_mini_req <- tm_map(job_mini_req, stemDocument)
+```
+```{r}
+mini_req_matrix <- TermDocumentMatrix(job_mini_req)
+mini_freq_m <- as.matrix(mini_req_matrix)
+mini_freq_v <- sort(rowSums(mini_freq_m), decreasing=TRUE)
+mini_freq <- data.frame(word = names(mini_freq_v), freq=mini_freq_v)
+head(mini_freq, 20)
+```
+```{r}
+library(wordcloud2)
+wordcloud2(data = mini_freq)
+```
+
+```{r}
+# All Jobs cross Preferred Skills
+# toSpace <- content_transformer(function (x , pattern) gsub(pattern, " ", x))
+# job_pref_skil <- tm_map(job_pref_skil, toSpace, "/")
+# job_pref_skil <- tm_map(job_pref_skil, toSpace, "@")
+# job_pref_skil <- tm_map(job_pref_skil, toSpace, "\\|")
+job_pref_skil <- tm_map(job_pref_skil, content_transformer(tolower))
+job_pref_skil <- tm_map(job_pref_skil, removeNumbers)
+job_pref_skil <- tm_map(job_pref_skil, removeWords, stopwords("english"))
+job_pref_skil <- tm_map(job_pref_skil, removeWords, c("the", "one", "two", "for", "must")) 
+job_pref_skil <- tm_map(job_pref_skil, removePunctuation)
+job_pref_skil <- tm_map(job_pref_skil, stripWhitespace)
+# job_pref_skil <- tm_map(job_pref_skil, stemDocument)
+```
+```{r}
+pref_skil_matrix <- TermDocumentMatrix(job_pref_skil)
+pref_freq_m <- as.matrix(pref_skil_matrix)
+pref_freq_v <- sort(rowSums(pref_freq_m), decreasing=TRUE)
+pref_freq <- data.frame(word = names(pref_freq_v), freq=pref_freq_v)
+pref_freq <- pref_freq[-1,]
+head(pref_freq, 20)
+```
+```{r}
+wordcloud2(data = pref_freq)
+```
+
+```{r}
+# Tech Jobs cross Minimum Qual Requirements
+# toSpace <- content_transformer(function (x , pattern) gsub(pattern, " ", x))
+# job_tech_mini_req <- tm_map(job_tech_mini_req, toSpace, "/")
+# job_tech_mini_req <- tm_map(job_tech_mini_req, toSpace, "@")
+# job_tech_mini_req <- tm_map(job_tech_mini_req, toSpace, "\\|")
+job_tech_mini_req <- tm_map(job_tech_mini_req, content_transformer(tolower))
+job_tech_mini_req <- tm_map(job_tech_mini_req, removeNumbers)
+job_tech_mini_req <- tm_map(job_tech_mini_req, removeWords, stopwords("english"))
+job_tech_mini_req <- tm_map(job_tech_mini_req, removeWords, c("the", "one", "two", "for", "must")) 
+job_tech_mini_req <- tm_map(job_tech_mini_req, removePunctuation)
+job_tech_mini_req <- tm_map(job_tech_mini_req, stripWhitespace)
+# job_tech_mini_req <- tm_map(job_tech_mini_req, stemDocument)
+```
+```{r}
+tech_mini_matrix <- TermDocumentMatrix(job_tech_mini_req)
+tech_mini_freq_m <- as.matrix(tech_mini_matrix)
+tech_mini_freq_v <- sort(rowSums(tech_mini_freq_m), decreasing=TRUE)
+tech_mini_freq <- data.frame(word = names(tech_mini_freq_v), freq=tech_mini_freq_v)
+head(tech_mini_freq, 20)
+```
+```{r}
+wordcloud2(data = tech_mini_freq)
+```
+
+```{r}
+# Tech Jobs cross Preferred Skills
+# toSpace <- content_transformer(function (x , pattern) gsub(pattern, " ", x))
+# job_tech_pref_skil <- tm_map(job_tech_pref_skil, toSpace, "/")
+# job_tech_pref_skil <- tm_map(job_tech_pref_skil, toSpace, "@")
+# job_tech_pref_skil <- tm_map(job_tech_pref_skil, toSpace, "\\|")
+job_tech_pref_skil <- tm_map(job_tech_pref_skil, content_transformer(tolower))
+job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeNumbers)
+job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeWords, stopwords("english"))
+job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeWords, c("the", "one", "two", "for", "must")) 
+job_tech_pref_skil <- tm_map(job_tech_pref_skil, removePunctuation)
+job_tech_pref_skil <- tm_map(job_tech_pref_skil, stripWhitespace)
+# job_tech_pref_skil <- tm_map(job_tech_pref_skil, stemDocument)
+```
+```{r}
+tech_pref_matrix <- TermDocumentMatrix(job_tech_pref_skil)
+tech_pref_freq_m <- as.matrix(tech_pref_matrix)
+tech_pref_freq_v <- sort(rowSums(tech_pref_freq_m), decreasing=TRUE)
+tech_pref_freq <- data.frame(word = names(tech_pref_freq_v), freq=tech_pref_freq_v)
+head(tech_pref_freq, 20)
+```
+```{r}
+wordcloud2(data = tech_pref_freq)
+```
 
 
 ## VI. Interactive component
@@ -133,7 +249,6 @@ ggplot(popular_category,aes(x = fct_reorder(Category,count), y = count))+
 job <- job%>%
   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)
 
-
 Annual = job[job$Salary.Frequency=="Annual",]
 ggplot(Annual, aes(salary)) +
   geom_histogram(bins = 40, color = "black", fill = "orange") +
@@ -150,7 +265,6 @@ ggplot(data = Daily, aes(Daily$salary)) +
   labs(x = "Salary Range", y = "Count") + 
   theme(plot.title = element_text(hjust = 0.5))
 ```
-
 
 ```{r}
 Hourly = job[job$Salary.Frequency=="Hourly",]
