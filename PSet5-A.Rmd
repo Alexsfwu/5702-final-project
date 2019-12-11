@@ -37,6 +37,7 @@ job[job == ''] <- NA # Set empty slots as NAs
 job <-job[!duplicated(job), ] %>%
   filter(!is.na(Job.Category))
 
+
 dim(job) # Check the dimension of the data frame
 ```
 
