@@ -30,7 +30,7 @@ The only problem about the data is that in the origin `.csv` file, there are ple
 
 As mentioned in the previous section, since the dataset is stored in a neat `.csv` file, we only need to read the file using the `read.csv` method and store the data in the data frame `job`. Later, when we need some specific attributes of the job postings dataset, we can use simply `$` or pipes and the `%>%` operator to extract the columns we need.
 ```{r}
-job <- read.csv("NYC_jobs.csv") # Read data from csv file
+job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 dim(job) # Check the dimension of the data frame
 ```
@@ -109,10 +109,12 @@ ggplot(categoryList, aes(fct_relevel(fct_rev(fct_infreq(fct_explicit_na(Category
   theme(plot.title = element_text(hjust = 0.5)) + 
   coord_flip()
 ```
+
 ```{r}
 job <- job%>%
   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)%>%
-  merge(.,categoryList, by = "Job.ID")
+  cbind(categoryList$Category) %>%
+  rename(Category = `categoryList$Category`)
 
 Annual = job[job$Salary.Frequency=="Annual",]
 ggplot(data = Annual, aes(Annual$salary)) +
