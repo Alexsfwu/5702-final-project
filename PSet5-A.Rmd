@@ -43,8 +43,9 @@ job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
 ##remove duplicate jobs 
-job <-job[!duplicated(job), ]%>%
+job <-job[!duplicated(job), ] %>%
   filter(!is.na(Job.Category))
+
 
 dim(job) # Check the dimension of the data frame
 ```
@@ -129,10 +130,9 @@ ggplot(popular_category,aes(x = fct_reorder(Category,count), y = count))+
 ```
 
 ```{r}
- job<- job%>%
-   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)
-   #cbind(categoryList$Job.Category) 
-   #rename(categoryList = `categoryList$Job.Category`)
+job <- job%>%
+  mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)
+
 
 Annual = job[job$Salary.Frequency=="Annual",]
 ggplot(Annual, aes(salary)) +
@@ -141,6 +141,7 @@ ggplot(Annual, aes(salary)) +
   labs(x = "Salary Range", y = "Count") + 
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
 ```{r}
 Daily = job[job$Salary.Frequency=="Daily",]
 ggplot(data = Daily, aes(Daily$salary)) +
@@ -149,6 +150,8 @@ ggplot(data = Daily, aes(Daily$salary)) +
   labs(x = "Salary Range", y = "Count") + 
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
+
 ```{r}
 Hourly = job[job$Salary.Frequency=="Hourly",]
 ggplot(data = Hourly, aes(Hourly$salary)) +
@@ -268,13 +271,6 @@ wordcloud2(data = d)
 
 # 4. Conclusion
 
-##########
-```{r}
-m2<-as.data.frame(t(m))
-m2$id = job$Job.ID
-```
-
-#########
 
 # 5. Future Works
 
