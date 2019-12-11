@@ -34,7 +34,8 @@ job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
 ##remove duplicate jobs 
-job <-job[!duplicated(job), ]
+job <-job[!duplicated(job), ]%>%
+  filter(!is.na(Job.Category))
 
 dim(job) # Check the dimension of the data frame
 ```
