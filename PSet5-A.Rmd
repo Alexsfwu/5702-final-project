@@ -42,7 +42,7 @@ library(tidyverse)
 job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
-## Remove duplicate jobs 
+# Remove duplicate jobs 
 job <-job[!duplicated(job), ] %>%
   filter(!is.na(Job.Category))
 
@@ -333,51 +333,13 @@ In conclusion, these are all we have done right now. We identify the number of j
 
 Word Frequency and WordCloud from here:
 ```{r}
-library(tm)
 library(SnowballC)
 library(wordcloud)
-library(wordcloud2)
 library(RColorBrewer)
-mini <- Corpus(VectorSource(job$Minimum.Qual.Requirements))
-# inspect(mini)
-```
-```{r}
-toSpace <- content_transformer(function (x , pattern) gsub(pattern, " ", x))
-mini <- tm_map(mini, toSpace, "/")
-mini <- tm_map(mini, toSpace, "@")
-mini <- tm_map(mini, toSpace, "\\|")
-mini <- tm_map(mini, content_transformer(tolower))
-```
-```{r}
-# Remove numbers
-mini <- tm_map(mini, removeNumbers)
-# Remove english common stopwords
-mini <- tm_map(mini, removeWords, stopwords("english"))
-# Remove your own stop word
-# specify your stopwords as a character vector
-mini <- tm_map(mini, removeWords, c("blabla1", "blabla2")) 
-# Remove punctuations
-mini <- tm_map(mini, removePunctuation)
-# Eliminate extra white spaces
-mini <- tm_map(mini, stripWhitespace)
-# Text stemming
-mini <- tm_map(mini, stemDocument)
-```
-```{r}
-dtm <- TermDocumentMatrix(mini)
-m <- as.matrix(dtm)
-v <- sort(rowSums(m), decreasing=TRUE)
-d <- data.frame(word = names(v), freq=v)
-head(d, 10)
-```
-```{r}
 set.seed(1234)
 wordcloud(words = d$word, freq = d$freq, min.freq = 1,
           max.words=200, random.order=FALSE, rot.per=0.35, 
           colors=brewer.pal(8, "Dark2"))
-```
-```{r}
-wordcloud2(data = d)
 ```
 
 
