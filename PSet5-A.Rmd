@@ -121,7 +121,7 @@ ggplot(categoryList, aes(fct_relevel(fct_rev(fct_infreq(fct_explicit_na(Category
 ```
 
 ```{r}
-job <- job%>%
+job_test <- job%>%
   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)%>%
   cbind(categoryList$Category) %>%
   rename(Category = `categoryList$Category`)
