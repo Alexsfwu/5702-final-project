@@ -30,10 +30,16 @@ The only problem about the data is that in the origin `.csv` file, there are ple
 
 As mentioned in the previous section, since the dataset is stored in a neat `.csv` file, we only need to read the file using the `read.csv` method and store the data in the data frame `job`. Later, when we need some specific attributes of the job postings dataset, we can use simply `$` or pipes and the `%>%` operator to extract the columns we need.
 ```{r}
+<<<<<<< HEAD
 # Read data from csv file
 job <- read.csv("./data/raw/NYC_jobs.csv")
 # Set empty slots as NAs
 job[job == ''] <- NA
+=======
+job <- read.csv("NYC_jobs.csv") # Read data from csv file
+job[job == ''] <- NA # Set empty slots as NAs
+dim(job) # Check the dimension of the data frame
+>>>>>>> parent of b8cc96a... change category list
 ```
 
 
@@ -121,7 +127,7 @@ ggplot(categoryList, aes(fct_relevel(fct_rev(fct_infreq(fct_explicit_na(Category
 ```
 
 ```{r}
-job_test <- job%>%
+job <- job%>%
   mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)%>%
   cbind(categoryList$Category) %>%
   rename(Category = `categoryList$Category`)
@@ -172,12 +178,20 @@ job %>%
   ggplot(aes(x = reorder(Category,salary,FUN=mean), y = salary)) +
   geom_boxplot(color = "black", fill = "orange") +
   ggtitle("Distribution of Salaries w.r.t Different Categories") + 
+<<<<<<< HEAD
   labs(x = "Category", y = "Annual Salary") + 
+=======
+  labs(x = "Category", y = "Anual Salary") + 
+>>>>>>> parent of b8cc96a... change category list
   theme(plot.title = element_text(hjust = 0.5)) +
   coord_flip()
 ```
 
+<<<<<<< HEAD
 This boxplot gives us a general idea of the salary distribution for different kinds of jobs. For instance, we can see that jobs of Building Operations & Maintenance in general have lower salaries than those of Information Technology & Telecommunmications.
+=======
+This boxplot gives us a general idea of the salary distribution for different kinds of jobs from the highest highest salary to lowest mean salary. For instance, we can see that jobs of Building Operations & Maintenance in general have lower salaries than those of Information Technology & Telecommunmications.
+>>>>>>> parent of b8cc96a... change category list
 
 There are a lot of information in the job description and job requirements. Extracting the useful information from these features could be a challenging work.
 
