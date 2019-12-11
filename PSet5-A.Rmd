@@ -176,27 +176,20 @@ job <- job %>% mutate(Annual_salary = if_else( Salary.Frequency == "Annual", rou
                                          round((Salary.Range.From + Salary.Range.To)*261*8.4/2,2))
                                  )
                                )
+
 ##make the list of category of each job id as a single observations 
-df <- data.frame( Job.ID= numeric(), category = character())
-for(i in 1:dim(categoryList)[1]){
-  cate <- unlist(categoryList[i,1])
-  for (j in 1:length(cate)){
-    single <- trimws(cate[j],"both")
-    if( !is.na(single)){
-      df <- rbind(df, data.frame(Job.ID = categoryList[i,2], category = single))
-    }
-  }
-}
+df<-unnest(categoryList, cols = c(Job.Category))%>%
+  mutate(Job.Category = trimws(Job.Category,"both"))%>%
+  filter(Job.Category!="")
+
 ## all job posting with only category, anuual salary and job id
-cate_salary_job <-job%>%
-  select(Job.ID,Annual_salary)
-##job category and salary
-df2<-df%>%
-  filter(category!="")%>%
-  filter(category %in% popular_category$Category)%>%
-  merge(.,cate_salary_job, by = "Job.ID")%>%
+
+df_popular<-df%>%
+  filter(Job.Category %in% popular_category$Category)%>%
+  merge(.,job[c("Job.ID","Annual_salary")], by = "Job.ID")%>%
   unique()
-ggplot(df2,aes(x = reorder(category,Annual_salary,FUN=mean), y = Annual_salary)) +
+
+ggplot(df_popular,aes(x = reorder(Job.Category,Annual_salary,FUN=mean), y = Annual_salary)) +
 geom_boxplot(color = "black", fill = "orange") +
 ggtitle("Distribution of Salaries w.r.t Different Categories") + 
 labs(x = "Category", y = "Anual Salary") + 
