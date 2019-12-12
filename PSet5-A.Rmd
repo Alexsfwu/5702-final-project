@@ -701,3 +701,77 @@ Be sure to review the final project instructions (https://edav.info/project.html
 
 
 ### 6.2 References
+
+```{r}
+library(leaflet)
+job = read_csv('data/raw/NYC_Jobs.csv')%>%
+  filter(!is.na(latitude)) %>%
+  filter(longitude < -74.0060 + 1) %>%
+  filter(longitude > -74.0060 - 1) %>%
+  filter(latitude < 40.7128 + 0.8) %>%
+  filter(latitude > 40.7128 - 0.8)
+
+#removing values for which there were no coordinates
+high_salary_geocodes = job %>%
+  filter(Annual_salary > mean(Annual_salary))
+low_salary_geocodes = job %>%
+  filter(Annual_salary < mean(Annual_salary))
+
+#add custom color column
+high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
+low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
+
+job = rbind(high_salary_geocodes, low_salary_geocodes) %>%
+  filter(!is.na(Annual_salary))
+
+ui <- bootstrapPage(
+  tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
+  leafletOutput("map", width = "100%", height = "100%"),
+  absolutePanel(top = 10, left = 50,
+                selectInput(inputId = "Full_part_time","Choose full time or part time:",
+                            c("All", "F", "P")
+                ),
+                sliderInput("Annual_salary", "Slide bar to choose the range of salary:", 
+                            50000, 100000,
+                            value = range(50000:100000), step = 10000
+                )
+                # numericInput("room_night", "Number of nights to stay", value = 5),
+                # checkboxInput("is_superhost", "Has to be a superhost", FALSE)
+  )
+)
+
+server <- function(input, output, session) {
+  
+  # Reactive expression for the data subsetted to what the user selected
+  
+  filteredData <- reactive({
+    temp <- job
+    if(input$Full_part_time !='All'){
+      temp <- temp[temp$Full.Time.Part.Time.indicator == input$Full_part_time, ]
+    }
+    # if(input$room_type != "All"){
+    #   temp <- temp[temp$room_type == input$room_type,]
+    # }
+    temp[#temp$host_is_superhost == input$is_superhost &
+           temp$Annual_salary >= input$Annual_salary[1] & temp$Annual_salary <= input$Annual_salary[2] 
+        #   temp$accommodates >= input$room_accomodate[1] & temp$accommodates <= input$room_accomodate[2] &
+           ,]#temp$minimum_nights <= input$room_night & temp$maximum_nights >= input$room_night,] 
+  })
+  
+  output$map <- renderLeaflet({
+    leaflet() %>% setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
+      addTiles() %>% 
+      addCircleMarkers(data = filteredData(),  
+                       lng = ~longitude, 
+                       lat = ~latitude, 
+                       radius = 3, 
+                       color = ~color,
+                       label = ~paste(Job.Category, Annual_salary))
+  })
+}
+
+shinyApp(ui, server,options=list(height=530))
+
+
+```
+
