@@ -49,10 +49,7 @@ library(shiny)
 job <- read.csv("data/raw/NYC_Jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
-# Remove duplicate jobs 
 job <-job[!duplicated(job), ]
-
-# dim(job) # Check the dimension of the data frame
 ```
 
 
@@ -64,8 +61,8 @@ As mentioned above, we fill all empty slots in the original dataset with NAs.
 After drawing a heatmap to show the missing patterns using `mi::missing_data.frame()`, we receive a warning message saying that all values in column `Recruiment Contact` are NAs. Therefore, we simply drop this column from our data frame. For other columns, we will keep these NAs for now.
 
 ```{r}
-#library(extracat)
-#visna(job)
+library(extracat)
+visna(job)
 ```
 
 ```{r}
@@ -75,7 +72,6 @@ job = job %>%
 ```
 
 ## V. Results
-This part is mainly contributed by Mingrui.
 ```{r}
 categoryList <- job %>%
   filter(!is.na(Job.Category))%>%
@@ -668,6 +664,7 @@ tech_job %>%
 
 ```{r}
 tech_job %>%
+  filter(!is.na(tech_job$Civil.Service.Title)) %>%
   group_by(Civil.Service.Title) %>%
   summarise(mean_salary = mean(Annual_salary)) %>%
   ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
@@ -735,13 +732,16 @@ job = read_csv('data/clean/job_with_lat_long.csv')%>%
   filter(latitude < 40.7128 + 0.8) %>%
   filter(latitude > 40.7128 - 0.8)
 
+job$Full.Time.Part.Time.indicator[job$Full.Time.Part.Time.indicator == 'F'] = 'Full time'
+
+job$Full.Time.Part.Time.indicator[job$Full.Time.Part.Time.indicator == 'P'] = 'Part time'
+
 job = job %>%
   select(-'Job.Category')
 df_popular_test = df_popular[,-3]
 
 job = unique(merge(df_popular_test, job, by = 'Job.ID'))
 
-#removing values for which there were no coordinates
 high_salary_geocodes = job %>%
   filter(Annual_salary > mean(Annual_salary))
 low_salary_geocodes = job %>%
@@ -759,17 +759,15 @@ ui <- bootstrapPage(
   leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(top = 10, left = 50,
                 selectInput(inputId = "Full_part_time","Choose full time or part time:",
-                            c("All", "F", "P")
+                            c("All", "Full time", "Part time")
                 ),
                 selectInput(inputId = "chosen_cate","Choose the category that you want:",
-                            c("All", "Maintenance", "Finance")
+                            c("All", popular_category$Category)
                 ),
                 sliderInput("Annual_salary", "Slide bar to choose the range of salary:", 
                             50000, 100000,
                             value = range(50000:100000), step = 10000
                 )
-                # numericInput("room_night", "Number of nights to stay", value = 5),
-                # checkboxInput("is_superhost", "Has to be a superhost", FALSE)
   )
 )
 
