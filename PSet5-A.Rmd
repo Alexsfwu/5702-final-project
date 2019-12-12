@@ -261,7 +261,7 @@ tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
 tech_job %>%
   filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
   ggplot(aes(Full.Time.Part.Time.indicator)) + 
-  geom_bar(fill = 'light blue') +
+  geom_bar(fill = 'lightblue') +
   labs(x = "Full time and part time")
 ```
 
@@ -270,7 +270,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Salary.Frequency)) %>%
   ggplot(aes(Salary.Frequency)) + 
-  geom_bar(fill = 'light blue') +
+  geom_bar(fill = 'lightblue') +
   labs(x = "Salary frequency")
 ```
 
@@ -279,7 +279,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Civil.Service.Title)) %>%
   ggplot(aes(fct_rev(fct_infreq(Civil.Service.Title)))) + 
-  geom_bar(fill = 'light blue') +
+  geom_bar(fill = 'lightblue') +
   labs(x = "Civil service title") + 
   coord_flip()
 ```
@@ -289,7 +289,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Work.Location)) %>%
   ggplot(aes(fct_rev(fct_infreq(Work.Location)))) + 
-  geom_bar(stat = 'count', fill = 'light blue') +
+  geom_bar(stat = 'count', fill = 'lightblue') +
   labs(x = "Work location") + 
   coord_flip()
 ```
@@ -300,7 +300,7 @@ tech_job %>%
   group_by(Civil.Service.Title) %>%
   summarise(mean_salary = mean(salary)) %>%
   ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
-  geom_col(fill = 'light blue') + 
+  geom_col(fill = 'lightblue') + 
   labs(x = 'Civil service title', 
        y = 'Average annual salary') + 
   coord_flip()
@@ -308,7 +308,63 @@ tech_job %>%
 
 
 ## VI. Interactive component
+```{r}
+# for(i in 1:nrow(job)){
+#  result = geocode( as.character(job$Work.Location[i]) , source = 'google', output = 'latlona')
+#  if(!is.na(result[1])){
+#    job$longitude[i] = as.numeric(result[1])
+#    job$latitude[i] = as.numeric(result[2])
+#    job$address[i] = as.character(result[3])
+#  }else{
+#    job$latitude[i] = NA
+#    job$longitude[i] = NA
+#    job$address[i] = NA
+#  }
+# }
 
+#write_csv(job, 'job_with_lat_long.csv')
+```
+
+
+
+
+```{r}
+library(leaflet)
+job_with_location = read_csv('job_with_lat_long.csv')%>%
+  filter(!is.na(latitude))%>%
+  filter(longitude < -74.0060 + 1) %>%
+  filter(longitude > -74.0060 - 1) %>%
+  filter(latitude < 40.7128 + 0.8) %>%
+   filter(latitude > 40.7128 - 0.8)
+  
+#removing values for which there were no coordinates
+high_salary_geocodes = job_with_location%>%
+  filter(Annual_salary>mean(Annual_salary))
+low_salary_geocodes = job_with_location%>%
+  filter(Annual_salary<mean(Annual_salary))
+
+#add custom color column
+high_salary_geocodes$color = rep('Blue', nrow(high_salary_geocodes))
+low_salary_geocodes$color = rep('Red', nrow(low_salary_geocodes))
+
+salary_geocodes = rbind(high_salary_geocodes, low_salary_geocodes)
+
+salary_geocodes %>% 
+  leaflet(data = .) %>% 
+  addProviderTiles(providers$Esri) %>%
+  setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
+  addTiles() %>% 
+  addCircleMarkers(lng = ~longitude, 
+                   lat = ~latitude, 
+                   radius = 3, 
+                   color = ~color, 
+                   popup = ~paste("<strong>Angency</strong>", salary_geocodes$Agency,
+                                  "<br /><strong>Job Title:</strong>", salary_geocodes$Business.Title,
+                                  "<br /><strong>Annual Salary:</strong>","$",salary_geocodes$Annual_salary,
+                                  "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))
+
+
+```
 
 ## VII. Conclusion
 
@@ -368,6 +424,37 @@ df<-unnest(categoryList, cols = c(Job.Category))%>%
   mutate(Job.Category = trimws(Job.Category,"both"))%>%
   filter(Job.Category!="")
 
+library(lubridate)
+mdy(job$Posting.Date)
+
+df_time<- df%>%
+  merge(.,job[c("Job.ID","Posting.Date")], by = "Job.ID")%>%
+  unique()%>%
+  mutate(month = lubridate::month(mdy(Posting.Date)))%>%
+  group_by(Job.Category,month)%>%
+  mutate(count = n())
+
+
+x<-df_time[1:50,]
+library("ggridges")
+library("tidyverse")
+
+ggplot(x, aes(x=month,y=Job.Category,fill=Job.Category))+
+  geom_density_ridges() + theme_ridges()+
+  labs(x="month",y="count")+
+  ggtitle("The counts of insects treated with different insecticides.")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(legend.position = "none")
+
+
+ggplot(Orange, aes(x=circumference,y=Tree,fill = Tree))+
+  geom_density_ridges(scale = 2, alpha=0.5) + theme_ridges()+
+  scale_fill_brewer(palette = 4)+
+  scale_y_discrete(expand = c(0.8, 0)) +
+  scale_x_continuous(expand = c(0.01, 0))+
+  labs(x="Circumference at Breast Height", y="Tree with ordering of max diameter")+
+  ggtitle("Density estimation of circumference of different types of Trees")+
+  theme(plot.title = element_text(hjust = 0.5))
 ## all job posting with only category, anuual salary and job id
 
 df_popular<-df%>%
@@ -383,9 +470,8 @@ theme(plot.title = element_text(hjust = 0.5)) +
   coord_flip()
 
 
-ggplot(df_popular, aes(df_popular$Job.Category)) + 
-  geom_bar(fill = 'orange') +
-  labs(x = "Full time and part time")
+
+
 ```
 
 
