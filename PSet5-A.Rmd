@@ -378,9 +378,9 @@ extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annu
 
 ```{r}
 library(devtools)
-#devtools::install_github('madlogos/recharts')
+devtools::install_github('madlogos/recharts')
 library(recharts)
-#devtools::install_github('ramnathv/rCharts')
+devtools::install_github('ramnathv/rCharts')
 library(rCharts)
 ```
 
