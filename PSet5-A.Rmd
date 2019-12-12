@@ -408,83 +408,83 @@ Word Frequency and WordCloud from here:
 ```
 
 
-## 3.2(Song's title, not decided yet)
-```{r}
-job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", round(abs(Salary.Range.From - Salary.Range.To),2),
-                                 if_else(Salary.Frequency == "Daily", round(abs(Salary.Range.From - Salary.Range.To)*261,2),
-                                         round(abs(Salary.Range.From - Salary.Range.To)*261*8.4,2))
-                                 )
-                               )
-```
+<!-- ## 3.2(Song's title, not decided yet) -->
+<!-- ```{r} -->
+<!-- job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", round(abs(Salary.Range.From - Salary.Range.To),2), -->
+<!--                                  if_else(Salary.Frequency == "Daily", round(abs(Salary.Range.From - Salary.Range.To)*261,2), -->
+<!--                                          round(abs(Salary.Range.From - Salary.Range.To)*261*8.4,2)) -->
+<!--                                  ) -->
+<!--                                ) -->
+<!-- ``` -->
 
-```{r}
-extractdf <- data.frame("id" = job$Job.ID, 
-                        "agency" = job$Agency,
-                        "posting_type" = job$Posting.Type,
-                       "type" = job$Full.Time.Part.Time.indicator,
-                       "num_positions" = job$X..Of.Positions,
-                       "salary_annual_mean" = job$Annual_salary,
-                       "salaray_annual_range" = job$Annual_salary_range)
-```
-Lookes like we have duplication in the table.  Delete these duplications.
-```{r}
-sum(duplicated(extractdf))
+<!-- ```{r} -->
+<!-- extractdf <- data.frame("id" = job$Job.ID,  -->
+<!--                         "agency" = job$Agency, -->
+<!--                         "posting_type" = job$Posting.Type, -->
+<!--                        "type" = job$Full.Time.Part.Time.indicator, -->
+<!--                        "num_positions" = job$X..Of.Positions, -->
+<!--                        "salary_annual_mean" = job$Annual_salary, -->
+<!--                        "salaray_annual_range" = job$Annual_salary_range) -->
+<!-- ``` -->
+<!-- Lookes like we have duplication in the table.  Delete these duplications. -->
+<!-- ```{r} -->
+<!-- sum(duplicated(extractdf)) -->
 
-extractdf <- unique(extractdf) 
-extractdf
-```
+<!-- extractdf <- unique(extractdf)  -->
+<!-- extractdf -->
+<!-- ``` -->
 
-Make sure each column in the property data type.
-```{r}
-extractdf$id <- as.integer(as.character(extractdf$id))
-extractdf$num_positions <- as.integer(as.character(extractdf$num_positions))
-extractdf$salary_annual_mean <- as.numeric(as.character(extractdf$salary_annual_mean))
-extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annual_range))
-```
+<!-- Make sure each column in the property data type. -->
+<!-- ```{r} -->
+<!-- extractdf$id <- as.integer(as.character(extractdf$id)) -->
+<!-- extractdf$num_positions <- as.integer(as.character(extractdf$num_positions)) -->
+<!-- extractdf$salary_annual_mean <- as.numeric(as.character(extractdf$salary_annual_mean)) -->
+<!-- extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annual_range)) -->
+<!-- ``` -->
 
-```{r}
-library(devtools)
-devtools::install_github('madlogos/recharts')
-library(recharts)
-devtools::install_github('ramnathv/rCharts')
-library(rCharts)
-```
+<!-- ```{r} -->
+<!-- library(devtools) -->
+<!-- devtools::install_github('madlogos/recharts') -->
+<!-- library(recharts) -->
+<!-- devtools::install_github('ramnathv/rCharts') -->
+<!-- library(rCharts) -->
+<!-- ``` -->
 
-```{r}
-mydf1 <- na.omit(extractdf)
-head(mydf1)
-```
+<!-- ```{r} -->
+<!-- mydf1 <- na.omit(extractdf) -->
+<!-- head(mydf1) -->
+<!-- ``` -->
 
-```{r}
-p <- nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
-p$yAxis(axisLabel = "Annual salary range")
-p$xAxis(axisLabel = "Annual salary mean")
-```
+<!-- ```{r} -->
+<!-- p <- nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart')  -->
+<!-- p$yAxis(axisLabel = "Annual salary range") -->
+<!-- p$xAxis(axisLabel = "Annual salary mean") -->
+<!-- ``` -->
 
-```{r}
-options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500)
-rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point')
-```
+<!-- ```{r} -->
+<!-- options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500) -->
+<!-- rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point') -->
+<!-- ``` -->
 
-```{r}
-echart(mydf1,~salary_annual_mean,~salaray_annual_range,series = ~type)
-```
+<!-- ```{r} -->
+<!-- echart(mydf1,~salary_annual_mean,~salaray_annual_range,series = ~type) -->
+<!-- ``` -->
 
 
-Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'.
-```{r}
-mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID")
-mydf
-```
-```{r}
-summary(mydf$salary_annual_mean)
-summary(mydf$salaray_annual_range)
-```
+<!-- Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'. -->
+<!-- ```{r} -->
+<!-- mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID") -->
+<!-- mydf -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- summary(mydf$salary_annual_mean) -->
+<!-- summary(mydf$salaray_annual_range) -->
+<!-- ``` -->
 
-```{r}
-mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587))
-mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000))
-```
+<!-- ```{r} -->
+<!-- mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587)) -->
+<!-- mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000)) -->
+<!-- ``` -->
 
 
 ## 3.3 Technology job posting trends
@@ -494,7 +494,7 @@ tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
 
 tech_job %>%
   filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
-  ggplot(aes(Full.Time.Part.Time.indicator)) + 
+  ggplot(aes(Full.Time.Part.Time.indicator)) +
   geom_bar(fill = 'lightblue') +
   labs(x = "Full time and part time")
 ```
@@ -532,7 +532,7 @@ tech_job %>%
 ```{r}
 tech_job %>%
   group_by(Civil.Service.Title) %>%
-  summarise(mean_salary = mean(salary)) %>%
+  summarise(mean_salary = mean(Annual_salary)) %>%
   ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
   geom_col(fill = 'lightblue') + 
   labs(x = 'Civil service title', 
