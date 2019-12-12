@@ -711,13 +711,11 @@ job = read_csv('data/raw/NYC_Jobs.csv')%>%
   filter(latitude < 40.7128 + 0.8) %>%
   filter(latitude > 40.7128 - 0.8)
 
-#removing values for which there were no coordinates
 high_salary_geocodes = job %>%
   filter(Annual_salary > mean(Annual_salary))
 low_salary_geocodes = job %>%
   filter(Annual_salary < mean(Annual_salary))
 
-#add custom color column
 high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
 low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
 
@@ -735,27 +733,18 @@ ui <- bootstrapPage(
                             50000, 100000,
                             value = range(50000:100000), step = 10000
                 )
-                # numericInput("room_night", "Number of nights to stay", value = 5),
-                # checkboxInput("is_superhost", "Has to be a superhost", FALSE)
   )
 )
 
 server <- function(input, output, session) {
-  
-  # Reactive expression for the data subsetted to what the user selected
   
   filteredData <- reactive({
     temp <- job
     if(input$Full_part_time !='All'){
       temp <- temp[temp$Full.Time.Part.Time.indicator == input$Full_part_time, ]
     }
-    # if(input$room_type != "All"){
-    #   temp <- temp[temp$room_type == input$room_type,]
-    # }
-    temp[#temp$host_is_superhost == input$is_superhost &
-           temp$Annual_salary >= input$Annual_salary[1] & temp$Annual_salary <= input$Annual_salary[2] 
-        #   temp$accommodates >= input$room_accomodate[1] & temp$accommodates <= input$room_accomodate[2] &
-           ,]#temp$minimum_nights <= input$room_night & temp$maximum_nights >= input$room_night,] 
+    
+    temp[temp$Annual_salary >= input$Annual_salary[1] & temp$Annual_salary <= input$Annual_salary[2], ]
   })
   
   output$map <- renderLeaflet({
