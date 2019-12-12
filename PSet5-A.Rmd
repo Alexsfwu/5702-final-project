@@ -556,7 +556,7 @@ extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annu
 
 ```{r}
 library(devtools)
-#devtools::install_github('madlogos/recharts')
+devtools::install_github('madlogos/recharts')
 library(recharts)
 library(rCharts)
 ```
@@ -728,7 +728,7 @@ Be sure to review the final project instructions (https://edav.info/project.html
 
 ```{r}
 library(leaflet)
-job = read_csv('data/raw/NYC_Jobs.csv')%>%
+job = read_csv('data/clean/job_with_lat_long.csv')%>%
   filter(!is.na(latitude)) %>%
   filter(longitude < -74.0060 + 1) %>%
   filter(longitude > -74.0060 - 1) %>%
