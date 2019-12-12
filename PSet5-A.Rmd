@@ -320,6 +320,11 @@ ggtitle("Distribution of Salaries w.r.t Different Categories") +
 labs(x = "Category", y = "Anual Salary") + 
 theme(plot.title = element_text(hjust = 0.5)) +
   coord_flip()
+
+
+ggplot(df_popular, aes(df_popular$Job.Category)) + 
+  geom_bar(fill = 'orange') +
+  labs(x = "Full time and part time")
 ```
 
 
@@ -437,6 +442,7 @@ tech_job %>%
   ggplot(aes(Full.Time.Part.Time.indicator)) + 
   geom_bar(fill = 'light blue') +
   labs(x = "Full time and part time")
+
 ```
 
 
