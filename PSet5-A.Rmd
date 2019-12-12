@@ -385,6 +385,11 @@ library(rCharts)
 ```
 
 ```{r}
+mydf1 <- na.omit(extractdf)
+head(mydf1)
+```
+
+```{r}
 p <- nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
 p$yAxis(axisLabel = "Annual salary range")
 p$xAxis(axisLabel = "Annual salary mean")
@@ -415,12 +420,6 @@ mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,
 mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000))
 ```
 
-
-
-```{r}
-mydf1 <- na.omit(extractdf)
-head(mydf1)
-```
 
 ## 3.3 Technology job posting trends
 
