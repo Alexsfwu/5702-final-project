@@ -39,7 +39,7 @@ library(tidyverse)
 ```
 
 ```{r}
-job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
+job <- read.csv("data/raw/NYC_Jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
 # Remove duplicate jobs 
@@ -378,16 +378,20 @@ extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annu
 
 ```{r}
 library(devtools)
-devtools::install_github('madlogos/recharts')
+#devtools::install_github('madlogos/recharts')
 library(recharts)
-devtools::install_github('ramnathv/rCharts')
 library(rCharts)
 ```
 
 ```{r}
-p <- nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
-p$yAxis(axisLabel = "Annual salary range")
-p$xAxis(axisLabel = "Annual salary mean")
+mydf1 <- na.omit(extractdf)
+head(mydf1)
+```
+
+```{r}
+nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
+#p$yAxis(axisLabel = "Annual salary range")
+#p$xAxis(axisLabel = "Annual salary mean")
 ```
 
 ```{r}
@@ -417,10 +421,7 @@ mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,284
 
 
 
-```{r}
-mydf1 <- na.omit(extractdf)
-head(mydf1)
-```
+
 
 ## 3.3 Technology job posting trends
 
