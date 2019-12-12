@@ -38,10 +38,15 @@ library(forcats)
 library(tidyverse)
 library(tm)
 library(htmlTable)
+library(ggridges)
+library(lubridate)
+library(RColorBrewer)
+library(shiny)
+
 ```
 
 ```{r}
-job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
+job <- read.csv("data/raw/NYC_Jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
 # Remove duplicate jobs 
@@ -372,14 +377,19 @@ tech_job %>%
 #   filter(Annual_salary<mean(Annual_salary))
 # 
 # #add custom color column
-# high_salary_geocodes$color = rep('Blue', nrow(high_salary_geocodes))
-# low_salary_geocodes$color = rep('Red', nrow(low_salary_geocodes))
+# high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
+# low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
 # 
 # salary_geocodes = rbind(high_salary_geocodes, low_salary_geocodes)
 # 
-# salary_geocodes %>% 
-#   leaflet(data = .) %>% 
-#   addProviderTiles(providers$Esri) %>%
+# main_salary<-salary_geocodes%>%
+#     filter(Annual_salary >  quantile(salary_geocodes$Annual_salary,0.05))%>%
+#     filter(Annual_salary < quantile(salary_geocodes$Annual_salary,0.95))
+# 
+# main_salary<-main_salary[order(main_salary$Annual_salary),]
+# 
+# main_salary %>% 
+#   leaflet() %>% 
 #   setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
 #   addTiles() %>% 
 #   addCircleMarkers(lng = ~longitude, 
@@ -388,9 +398,14 @@ tech_job %>%
 #                    color = ~color, 
 #                    popup = ~paste("<strong>Angency</strong>", salary_geocodes$Agency,
 #                                   "<br /><strong>Job Title:</strong>", salary_geocodes$Business.Title,
-#                                   "<br /><strong>Annual Salary:</strong>","$",salary_geocodes$Annual_salary,
-#                                   "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))
-# 
+#                                   "<br /><strong>Annual Salary:</strong>","$",main_salary$Annual_salary,
+#                                   "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))%>%
+#   addLegend("bottomright", 
+#             colors = c('red', 'blue'), 
+#             labels = c('high_salary', 'low_salary'),
+#             title = "Salary",
+#     opacity = 1
+#   )
 
 ```
 
@@ -442,43 +457,29 @@ df<-unnest(categoryList, cols = c(Job.Category))%>%
   mutate(Job.Category = trimws(Job.Category,"both"))%>%
   filter(Job.Category!="")
 
-library(lubridate)
+
 mdy(job$Posting.Date)
 
-df_time<- df%>%
-  merge(.,job[c("Job.ID","Posting.Date")], by = "Job.ID")%>%
+df_all<-left_join(df, job, by = "Job.ID")
+
+df_popular<-df%>%
+  filter(Job.Category %in% popular_category$Category)%>%
+  merge(.,job[c("Job.ID","Annual_salary","Posting.Date")], by = "Job.ID")%>%
   unique()%>%
   mutate(month = lubridate::month(mdy(Posting.Date)))%>%
   group_by(Job.Category,month)%>%
   mutate(count = n())
 
-
-x<-df_time[1:50,]
-library("ggridges")
-library("tidyverse")
-
-ggplot(x, aes(x=month,y=Job.Category,fill=Job.Category))+
-  geom_density_ridges() + theme_ridges()+
+ggplot(df_popular, aes(x=month,y=Job.Category,fill=Job.Category))+
+  geom_density_ridges(scale = 3, show.legend = FALSE) + theme_ridges()+
   labs(x="month",y="count")+
   ggtitle("The counts of insects treated with different insecticides.")+
-  theme(plot.title = element_text(hjust = 0.5))+
-  theme(legend.position = "none")
-
-
-ggplot(Orange, aes(x=circumference,y=Tree,fill = Tree))+
-  geom_density_ridges(scale = 2, alpha=0.5) + theme_ridges()+
-  scale_fill_brewer(palette = 4)+
-  scale_y_discrete(expand = c(0.8, 0)) +
-  scale_x_continuous(expand = c(0.01, 0))+
-  labs(x="Circumference at Breast Height", y="Tree with ordering of max diameter")+
-  ggtitle("Density estimation of circumference of different types of Trees")+
   theme(plot.title = element_text(hjust = 0.5))
+
+
 ## all job posting with only category, anuual salary and job id
 
-df_popular<-df%>%
-  filter(Job.Category %in% popular_category$Category)%>%
-  merge(.,job[c("Job.ID","Annual_salary")], by = "Job.ID")%>%
-  unique()
+
 
 ggplot(df_popular,aes(x = reorder(Job.Category,Annual_salary,FUN=mean), y = Annual_salary)) +
 geom_boxplot(color = "black", fill = "orange") +
@@ -517,85 +518,109 @@ Word Frequency and WordCloud from here:
 ```
 
 
-<!-- ## 3.2(Song's title, not decided yet) -->
-<!-- ```{r} -->
-<!-- job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", round(abs(Salary.Range.From - Salary.Range.To),2), -->
-<!--                                  if_else(Salary.Frequency == "Daily", round(abs(Salary.Range.From - Salary.Range.To)*261,2), -->
-<!--                                          round(abs(Salary.Range.From - Salary.Range.To)*261*8.4,2)) -->
-<!--                                  ) -->
-<!--                                ) -->
-<!-- ``` -->
+## 3.2(Song's title, not decided yet)
 
-<!-- ```{r} -->
-<!-- extractdf <- data.frame("id" = job$Job.ID,  -->
-<!--                         "agency" = job$Agency, -->
-<!--                         "posting_type" = job$Posting.Type, -->
-<!--                        "type" = job$Full.Time.Part.Time.indicator, -->
-<!--                        "num_positions" = job$X..Of.Positions, -->
-<!--                        "salary_annual_mean" = job$Annual_salary, -->
-<!--                        "salaray_annual_range" = job$Annual_salary_range) -->
-<!-- ``` -->
-<!-- Lookes like we have duplication in the table.  Delete these duplications. -->
-<!-- ```{r} -->
-<!-- sum(duplicated(extractdf)) -->
+```{r}
+job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", 
+                                                    round(abs(Salary.Range.From -Salary.Range.To),2),
+                                            if_else(Salary.Frequency == "Daily", 
+                                                    round(abs(Salary.Range.From -Salary.Range.To)*261,2),
+                                                round(abs(Salary.Range.From - Salary.Range.To)*261*8.4,2))
+                      ) 
+            ) 
+```
 
-<!-- extractdf <- unique(extractdf)  -->
-<!-- extractdf -->
-<!-- ``` -->
+```{r}
+extractdf <- data.frame("id" = job$Job.ID, 
+                        "agency" = job$Agency,
+                        "posting_type" = job$Posting.Type,
+                       "type" = job$Full.Time.Part.Time.indicator,
+                       "num_positions" = job$X..Of.Positions,
+                       "salary_annual_mean" = job$Annual_salary,
+                       "salaray_annual_range" = job$Annual_salary_range)
+```
+Lookes like we have duplication in the table.  Delete these duplications.
+```{r}
+sum(duplicated(extractdf))
+extractdf <- unique(extractdf) 
+extractdf
+```
 
-<!-- Make sure each column in the property data type. -->
-<!-- ```{r} -->
-<!-- extractdf$id <- as.integer(as.character(extractdf$id)) -->
-<!-- extractdf$num_positions <- as.integer(as.character(extractdf$num_positions)) -->
-<!-- extractdf$salary_annual_mean <- as.numeric(as.character(extractdf$salary_annual_mean)) -->
-<!-- extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annual_range)) -->
-<!-- ``` -->
+Make sure each column in the property data type.
+```{r}
+extractdf$id <- as.integer(as.character(extractdf$id))
+extractdf$num_positions <- as.integer(as.character(extractdf$num_positions))
+extractdf$salary_annual_mean <- as.numeric(as.character(extractdf$salary_annual_mean))
+extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annual_range))
+```
 
-<!-- ```{r} -->
-<!-- library(devtools) -->
-<!-- devtools::install_github('madlogos/recharts') -->
-<!-- library(recharts) -->
-<!-- devtools::install_github('ramnathv/rCharts') -->
-<!-- library(rCharts) -->
-<!-- ``` -->
+```{r}
+library(devtools)
+#devtools::install_github('madlogos/recharts')
+library(recharts)
+library(rCharts)
+```
 
-<!-- ```{r} -->
-<!-- mydf1 <- na.omit(extractdf) -->
-<!-- head(mydf1) -->
-<!-- ``` -->
+```{r}
+mydf1 <- na.omit(extractdf)
+head(mydf1)
+```
 
-<!-- ```{r} -->
-<!-- p <- nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart')  -->
-<!-- p$yAxis(axisLabel = "Annual salary range") -->
-<!-- p$xAxis(axisLabel = "Annual salary mean") -->
-<!-- ``` -->
+```{r}
+options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500)
+rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point')
+```
 
-<!-- ```{r} -->
-<!-- options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500) -->
-<!-- rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point') -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- echart(mydf1,~salary_annual_mean,~salaray_annual_range,series = ~type) -->
-<!-- ``` -->
+```{r}
+p <-nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
+p$yAxis(axisLabel = "Annual salary range")
+p$xAxis(axisLabel = "Annual salary mean")
+p$chart(showDistX = TRUE, showDistY = TRUE)
+p$chart(color = c("blue","yellow"))
+p
+```
 
 
-<!-- Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'. -->
-<!-- ```{r} -->
-<!-- mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID") -->
-<!-- mydf -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- summary(mydf$salary_annual_mean) -->
-<!-- summary(mydf$salaray_annual_range) -->
-<!-- ``` -->
 
-<!-- ```{r} -->
-<!-- mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587)) -->
-<!-- mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000)) -->
-<!-- ``` -->
-<<<<<<< HEAD
-=======
+
+Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'.
+```{r}
+mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID")
+mydf$Job.Category <- as.factor(mydf$Job.Category)
+```
+```{r}
+summary(mydf$salary_annual_mean)
+summary(mydf$salaray_annual_range)
+```
+
+```{r}
+mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587))
+mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000))
+```
+
+```{r}
+cate_freq_mean = as.data.frame(table(mydf$Job.Category))
+cate_freq_mean$Annual_salary_mean <- NA
+for (i in 1:110){cate_freq_mean$Annual_salary_mean[i] <- mean(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$cate_sala_max <- NA
+for (i in 1:110){cate_freq_mean$cate_sala_max[i] <- max(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$cate_sala_min <- NA
+for (i in 1:110){cate_freq_mean$cate_sala_min[i] <- min(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$Annual_salary_range <- cate_freq_mean$cate_sala_max - cate_freq_mean$cate_sala_min
+
+cate_freq_mean = cate_freq_mean[order(cate_freq_mean$Freq,decreasing = TRUE),]
+```
+
+```{r}
+top_popular_cate = head(cate_freq_mean,30)
+hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on top 30 popular job categories')
+```
+
+
+```{r}
+hPlot(Annual_salary_range~Annual_salary_mean,data = cate_freq_mean,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on job categories')
+```
+
 
 
 ## 3.3 Technology job posting trends
@@ -651,7 +676,6 @@ tech_job %>%
        y = 'Average annual salary') + 
   coord_flip()
 ```
->>>>>>> cdb3af3b1b1bd4ab4d5f85c673842a162223bd23
 
 As a result, for technology job postings in New York City:
   
@@ -772,7 +796,16 @@ server <- function(input, output, session) {
                        lat = ~latitude, 
                        radius = 3, 
                        color = ~color,
-                       label = ~paste(Job.Category, Annual_salary))
+                       popup = ~paste("<strong>Angency</strong>", Agency,
+                                  "<br /><strong>Job Title:</strong>", Business.Title,
+                                  "<br /><strong>Annual Salary:</strong>","$",Annual_salary,
+                                  "<br /><strong>Category:</strong>",Job.Category))%>%
+  addLegend("bottomright", 
+            colors = c('red', 'blue'), 
+            labels = c('high_salary', 'low_salary'),
+            title = "Salary",
+    opacity = 1
+  )
   })
 }
 
