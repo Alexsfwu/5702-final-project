@@ -38,6 +38,10 @@ library(forcats)
 library(tidyverse)
 library(tm)
 library(htmlTable)
+library(ggridges)
+library(lubridate)
+library(RColorBrewer)
+
 ```
 
 ```{r}
@@ -372,14 +376,19 @@ low_salary_geocodes = job_with_location%>%
   filter(Annual_salary<mean(Annual_salary))
 
 #add custom color column
-high_salary_geocodes$color = rep('Blue', nrow(high_salary_geocodes))
-low_salary_geocodes$color = rep('Red', nrow(low_salary_geocodes))
+high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
+low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
 
 salary_geocodes = rbind(high_salary_geocodes, low_salary_geocodes)
 
-salary_geocodes %>% 
-  leaflet(data = .) %>% 
-  addProviderTiles(providers$Esri) %>%
+main_salary<-salary_geocodes%>%
+    filter(Annual_salary >  quantile(salary_geocodes$Annual_salary,0.05))%>%
+    filter(Annual_salary < quantile(salary_geocodes$Annual_salary,0.95))
+
+main_salary<-main_salary[order(main_salary$Annual_salary),]
+
+main_salary %>% 
+  leaflet() %>% 
   setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
   addTiles() %>% 
   addCircleMarkers(lng = ~longitude, 
@@ -388,8 +397,14 @@ salary_geocodes %>%
                    color = ~color, 
                    popup = ~paste("<strong>Angency</strong>", salary_geocodes$Agency,
                                   "<br /><strong>Job Title:</strong>", salary_geocodes$Business.Title,
-                                  "<br /><strong>Annual Salary:</strong>","$",salary_geocodes$Annual_salary,
-                                  "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))
+                                  "<br /><strong>Annual Salary:</strong>","$",main_salary$Annual_salary,
+                                  "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))%>%
+  addLegend("bottomright", 
+            colors = c('red', 'blue'), 
+            labels = c('high_salary', 'low_salary'),
+            title = "Salary",
+    opacity = 1
+  )
 
 
 ```
@@ -442,43 +457,29 @@ df<-unnest(categoryList, cols = c(Job.Category))%>%
   mutate(Job.Category = trimws(Job.Category,"both"))%>%
   filter(Job.Category!="")
 
-library(lubridate)
+
 mdy(job$Posting.Date)
 
-df_time<- df%>%
-  merge(.,job[c("Job.ID","Posting.Date")], by = "Job.ID")%>%
+df_all<-left_join(df, job, by = "Job.ID")
+
+df_popular<-df%>%
+  filter(Job.Category %in% popular_category$Category)%>%
+  merge(.,job[c("Job.ID","Annual_salary","Posting.Date")], by = "Job.ID")%>%
   unique()%>%
   mutate(month = lubridate::month(mdy(Posting.Date)))%>%
   group_by(Job.Category,month)%>%
   mutate(count = n())
 
-
-x<-df_time[1:50,]
-library("ggridges")
-library("tidyverse")
-
-ggplot(x, aes(x=month,y=Job.Category,fill=Job.Category))+
-  geom_density_ridges() + theme_ridges()+
+ggplot(df_popular, aes(x=month,y=Job.Category,fill=Job.Category))+
+  geom_density_ridges(scale = 3, show.legend = FALSE) + theme_ridges()+
   labs(x="month",y="count")+
   ggtitle("The counts of insects treated with different insecticides.")+
-  theme(plot.title = element_text(hjust = 0.5))+
-  theme(legend.position = "none")
-
-
-ggplot(Orange, aes(x=circumference,y=Tree,fill = Tree))+
-  geom_density_ridges(scale = 2, alpha=0.5) + theme_ridges()+
-  scale_fill_brewer(palette = 4)+
-  scale_y_discrete(expand = c(0.8, 0)) +
-  scale_x_continuous(expand = c(0.01, 0))+
-  labs(x="Circumference at Breast Height", y="Tree with ordering of max diameter")+
-  ggtitle("Density estimation of circumference of different types of Trees")+
   theme(plot.title = element_text(hjust = 0.5))
+
+
 ## all job posting with only category, anuual salary and job id
 
-df_popular<-df%>%
-  filter(Job.Category %in% popular_category$Category)%>%
-  merge(.,job[c("Job.ID","Annual_salary")], by = "Job.ID")%>%
-  unique()
+
 
 ggplot(df_popular,aes(x = reorder(Job.Category,Annual_salary,FUN=mean), y = Annual_salary)) +
 geom_boxplot(color = "black", fill = "orange") +
