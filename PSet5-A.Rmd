@@ -434,7 +434,7 @@ tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
 tech_job %>%
   filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
   ggplot(aes(Full.Time.Part.Time.indicator)) + 
-  geom_bar(fill = 'light blue') +
+  geom_bar(fill = 'lightblue') +
   labs(x = "Full time and part time")
 ```
 
@@ -443,7 +443,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Salary.Frequency)) %>%
   ggplot(aes(Salary.Frequency)) + 
-  geom_bar(fill = 'light blue') +
+  geom_bar(fill = 'lightblue') +
   labs(x = "Salary frequency")
 ```
 
@@ -452,7 +452,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Civil.Service.Title)) %>%
   ggplot(aes(fct_rev(fct_infreq(Civil.Service.Title)))) + 
-  geom_bar(fill = 'light blue') +
+  geom_bar(fill = 'lightblue') +
   labs(x = "Civil service title") + 
   coord_flip()
 ```
@@ -462,7 +462,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Work.Location)) %>%
   ggplot(aes(fct_rev(fct_infreq(Work.Location)))) + 
-  geom_bar(stat = 'count') +
+  geom_bar(fill = 'lightblue') +
   labs(x = "Work location") + 
   coord_flip()
 ```
@@ -473,7 +473,7 @@ tech_job %>%
   group_by(Civil.Service.Title) %>%
   summarise(mean_salary = mean(salary)) %>%
   ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
-  geom_col(fill = 'light blue') + 
+  geom_col(fill = 'lightblue') + 
   labs(x = 'Civil service title', 
        y = 'Average annual salary') + 
   coord_flip()
