@@ -59,8 +59,8 @@ As mentioned above, we fill all empty slots in the original dataset with NAs.
 After drawing a heatmap to show the missing patterns using `mi::missing_data.frame()`, we receive a warning message saying that all values in column `Recruiment Contact` are NAs. Therefore, we simply drop this column from our data frame. For other columns, we will keep these NAs for now.
 
 ```{r}
-library(extracat)
-visna(job)
+#library(extracat)
+#visna(job)
 ```
 
 ```{r}
@@ -357,40 +357,40 @@ tech_job %>%
 
 
 ```{r}
-library(leaflet)
-job_with_location = read_csv('job_with_lat_long.csv')%>%
-  filter(!is.na(latitude))%>%
-  filter(longitude < -74.0060 + 1) %>%
-  filter(longitude > -74.0060 - 1) %>%
-  filter(latitude < 40.7128 + 0.8) %>%
-   filter(latitude > 40.7128 - 0.8)
-  
-#removing values for which there were no coordinates
-high_salary_geocodes = job_with_location%>%
-  filter(Annual_salary>mean(Annual_salary))
-low_salary_geocodes = job_with_location%>%
-  filter(Annual_salary<mean(Annual_salary))
-
-#add custom color column
-high_salary_geocodes$color = rep('Blue', nrow(high_salary_geocodes))
-low_salary_geocodes$color = rep('Red', nrow(low_salary_geocodes))
-
-salary_geocodes = rbind(high_salary_geocodes, low_salary_geocodes)
-
-salary_geocodes %>% 
-  leaflet(data = .) %>% 
-  addProviderTiles(providers$Esri) %>%
-  setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
-  addTiles() %>% 
-  addCircleMarkers(lng = ~longitude, 
-                   lat = ~latitude, 
-                   radius = 3, 
-                   color = ~color, 
-                   popup = ~paste("<strong>Angency</strong>", salary_geocodes$Agency,
-                                  "<br /><strong>Job Title:</strong>", salary_geocodes$Business.Title,
-                                  "<br /><strong>Annual Salary:</strong>","$",salary_geocodes$Annual_salary,
-                                  "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))
-
+# library(leaflet)
+# job_with_location = read_csv('job_with_lat_long.csv')%>%
+#   filter(!is.na(latitude))%>%
+#   filter(longitude < -74.0060 + 1) %>%
+#   filter(longitude > -74.0060 - 1) %>%
+#   filter(latitude < 40.7128 + 0.8) %>%
+#    filter(latitude > 40.7128 - 0.8)
+#   
+# #removing values for which there were no coordinates
+# high_salary_geocodes = job_with_location%>%
+#   filter(Annual_salary>mean(Annual_salary))
+# low_salary_geocodes = job_with_location%>%
+#   filter(Annual_salary<mean(Annual_salary))
+# 
+# #add custom color column
+# high_salary_geocodes$color = rep('Blue', nrow(high_salary_geocodes))
+# low_salary_geocodes$color = rep('Red', nrow(low_salary_geocodes))
+# 
+# salary_geocodes = rbind(high_salary_geocodes, low_salary_geocodes)
+# 
+# salary_geocodes %>% 
+#   leaflet(data = .) %>% 
+#   addProviderTiles(providers$Esri) %>%
+#   setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
+#   addTiles() %>% 
+#   addCircleMarkers(lng = ~longitude, 
+#                    lat = ~latitude, 
+#                    radius = 3, 
+#                    color = ~color, 
+#                    popup = ~paste("<strong>Angency</strong>", salary_geocodes$Agency,
+#                                   "<br /><strong>Job Title:</strong>", salary_geocodes$Business.Title,
+#                                   "<br /><strong>Annual Salary:</strong>","$",salary_geocodes$Annual_salary,
+#                                   "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))
+# 
 
 ```
 
