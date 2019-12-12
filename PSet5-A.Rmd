@@ -712,6 +712,12 @@ job = read_csv('data/raw/NYC_Jobs.csv')%>%
   filter(latitude < 40.7128 + 0.8) %>%
   filter(latitude > 40.7128 - 0.8)
 
+job = job %>%
+  select(-'Job.Category')
+df_popular_test = df_popular[,-3]
+
+job = unique(merge(df_popular_test, job, by = 'Job.ID'))
+
 #removing values for which there were no coordinates
 high_salary_geocodes = job %>%
   filter(Annual_salary > mean(Annual_salary))
@@ -732,6 +738,9 @@ ui <- bootstrapPage(
                 selectInput(inputId = "Full_part_time","Choose full time or part time:",
                             c("All", "F", "P")
                 ),
+                selectInput(inputId = "chosen_cate","Choose the category that you want:",
+                            c("All", "Maintenance", "Finance")
+                ),
                 sliderInput("Annual_salary", "Slide bar to choose the range of salary:", 
                             50000, 100000,
                             value = range(50000:100000), step = 10000
@@ -750,13 +759,10 @@ server <- function(input, output, session) {
     if(input$Full_part_time !='All'){
       temp <- temp[temp$Full.Time.Part.Time.indicator == input$Full_part_time, ]
     }
-    # if(input$room_type != "All"){
-    #   temp <- temp[temp$room_type == input$room_type,]
-    # }
-    temp[#temp$host_is_superhost == input$is_superhost &
-           temp$Annual_salary >= input$Annual_salary[1] & temp$Annual_salary <= input$Annual_salary[2] 
-        #   temp$accommodates >= input$room_accomodate[1] & temp$accommodates <= input$room_accomodate[2] &
-           ,]#temp$minimum_nights <= input$room_night & temp$maximum_nights >= input$room_night,] 
+    if (input$chosen_cate !='All') {
+      temp <- temp[temp$Job.Category == input$chosen_cate, ]
+    }
+    temp[temp$Annual_salary >= input$Annual_salary[1] & temp$Annual_salary <= input$Annual_salary[2], ]
   })
   
   output$map <- renderLeaflet({
@@ -772,6 +778,7 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server,options=list(height=530))
+
 
 
 ```
