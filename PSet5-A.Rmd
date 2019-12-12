@@ -43,8 +43,7 @@ job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
 # Remove duplicate jobs 
-job <-job[!duplicated(job), ] %>%
-  filter(!is.na(Job.Category))
+job <-job[!duplicated(job), ]
 
 dim(job) # Check the dimension of the data frame
 ```
@@ -52,6 +51,12 @@ dim(job) # Check the dimension of the data frame
 ## IV. Missing values 
 
 As mentioned above, we fill all empty slots in the original dataset with NAs, and we will keep these NAs in our data frame. Later, depends on our tasks, we will decide whether to drop the NAs or not.
+```{r}
+library(mi)
+x <- missing_data.frame(job)
+image(x)
+```
+
 
 
 ## V. Results
@@ -378,9 +383,9 @@ extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annu
 
 ```{r}
 library(devtools)
-#devtools::install_github('madlogos/recharts')
+devtools::install_github('madlogos/recharts')
 library(recharts)
-#devtools::install_github('ramnathv/rCharts')
+devtools::install_github('ramnathv/rCharts')
 library(rCharts)
 ```
 
