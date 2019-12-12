@@ -41,6 +41,7 @@ library(htmlTable)
 library(ggridges)
 library(lubridate)
 library(RColorBrewer)
+library(shiny)
 
 ```
 
@@ -773,7 +774,16 @@ server <- function(input, output, session) {
                        lat = ~latitude, 
                        radius = 3, 
                        color = ~color,
-                       label = ~paste(Job.Category, Annual_salary))
+                       popup = ~paste("<strong>Angency</strong>", Agency,
+                                  "<br /><strong>Job Title:</strong>", Business.Title,
+                                  "<br /><strong>Annual Salary:</strong>","$",Annual_salary,
+                                  "<br /><strong>Category:</strong>",Job.Category))%>%
+  addLegend("bottomright", 
+            colors = c('red', 'blue'), 
+            labels = c('high_salary', 'low_salary'),
+            title = "Salary",
+    opacity = 1
+  )
   })
 }
 
