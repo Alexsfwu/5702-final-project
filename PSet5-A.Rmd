@@ -363,7 +363,6 @@ extractdf <- data.frame("id" = job$Job.ID,
 Lookes like we have duplication in the table.  Delete these duplications.
 ```{r}
 sum(duplicated(extractdf))
-
 extractdf <- unique(extractdf) 
 extractdf
 ```
@@ -389,25 +388,30 @@ head(mydf1)
 ```
 
 ```{r}
-nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
-#p$yAxis(axisLabel = "Annual salary range")
-#p$xAxis(axisLabel = "Annual salary mean")
-```
-
-```{r}
 options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500)
 rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point')
 ```
 
 ```{r}
-echart(mydf1,~salary_annual_mean,~salaray_annual_range,series = ~type)
+p <-nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
+p$yAxis(axisLabel = "Annual salary range")
+p$xAxis(axisLabel = "Annual salary mean")
+p$chart(showDistX = TRUE, showDistY = TRUE)
+p$chart(color = c("blue","yellow"))
+p
 ```
+
+
+
+
+
+
 
 
 Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'.
 ```{r}
 mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID")
-mydf
+mydf$Job.Category <- as.factor(mydf$Job.Category)
 ```
 ```{r}
 summary(mydf$salary_annual_mean)
@@ -419,7 +423,27 @@ mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,
 mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000))
 ```
 
+```{r}
+cate_freq_mean = as.data.frame(table(mydf$Job.Category))
+cate_freq_mean$Annual_salary_mean <- NA
+for (i in 1:110){cate_freq_mean$Annual_salary_mean[i] <- mean(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$cate_sala_max <- NA
+for (i in 1:110){cate_freq_mean$cate_sala_max[i] <- max(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$cate_sala_min <- NA
+for (i in 1:110){cate_freq_mean$cate_sala_min[i] <- min(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$Annual_salary_range <- cate_freq_mean$cate_sala_max - cate_freq_mean$cate_sala_min
 
+cate_freq_mean = cate_freq_mean[order(cate_freq_mean$Freq,decreasing = TRUE),]
+```
+
+```{r}
+top_popular_cate = head(cate_freq_mean,30)
+hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on top 30 popular job categories')
+```
+
+```{r}
+hPlot(Annual_salary_range~Annual_salary_mean,data = cate_freq_mean,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on job categories')
+```
 
 
 
