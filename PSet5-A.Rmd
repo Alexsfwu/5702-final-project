@@ -506,11 +506,63 @@ Word Frequency and WordCloud from here:
 <!-- mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587)) -->
 <!-- mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000)) -->
 <!-- ``` -->
+<<<<<<< HEAD
+=======
 
 
 ## 3.3 Technology job posting trends
 
+```{r}
+tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
 
+tech_job %>%
+  filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
+  ggplot(aes(Full.Time.Part.Time.indicator)) +
+  geom_bar(fill = 'lightblue') +
+  labs(x = "Full time and part time")
+```
+
+
+```{r}
+tech_job %>%
+  filter(!is.na(tech_job$Salary.Frequency)) %>%
+  ggplot(aes(Salary.Frequency)) + 
+  geom_bar(fill = 'lightblue') +
+  labs(x = "Salary frequency")
+```
+
+
+```{r}
+tech_job %>%
+  filter(!is.na(tech_job$Civil.Service.Title)) %>%
+  ggplot(aes(fct_rev(fct_infreq(Civil.Service.Title)))) + 
+  geom_bar(fill = 'lightblue') +
+  labs(x = "Civil service title") + 
+  coord_flip()
+```
+
+
+```{r}
+tech_job %>%
+  filter(!is.na(tech_job$Work.Location)) %>%
+  ggplot(aes(fct_rev(fct_infreq(Work.Location)))) + 
+  geom_bar(fill = 'lightblue') +
+  labs(x = "Work location") + 
+  coord_flip()
+```
+
+
+```{r}
+tech_job %>%
+  group_by(Civil.Service.Title) %>%
+  summarise(mean_salary = mean(Annual_salary)) %>%
+  ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
+  geom_col(fill = 'lightblue') + 
+  labs(x = 'Civil service title', 
+       y = 'Average annual salary') + 
+  coord_flip()
+```
+>>>>>>> cdb3af3b1b1bd4ab4d5f85c673842a162223bd23
 
 As a result, for technology job postings in New York City:
   
