@@ -711,11 +711,19 @@ job = read_csv('data/raw/NYC_Jobs.csv')%>%
   filter(latitude < 40.7128 + 0.8) %>%
   filter(latitude > 40.7128 - 0.8)
 
+job = job %>%
+  select(-'Job.Category')
+df_popular_test = df_popular[,-3]
+
+job = unique(merge(df_popular_test, job, by = 'Job.ID'))
+
+#removing values for which there were no coordinates
 high_salary_geocodes = job %>%
   filter(Annual_salary > mean(Annual_salary))
 low_salary_geocodes = job %>%
   filter(Annual_salary < mean(Annual_salary))
 
+#add custom color column
 high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
 low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
 
@@ -729,21 +737,30 @@ ui <- bootstrapPage(
                 selectInput(inputId = "Full_part_time","Choose full time or part time:",
                             c("All", "F", "P")
                 ),
+                selectInput(inputId = "chosen_cate","Choose the category that you want:",
+                            c("All", "Maintenance", "Finance")
+                ),
                 sliderInput("Annual_salary", "Slide bar to choose the range of salary:", 
                             50000, 100000,
                             value = range(50000:100000), step = 10000
                 )
+                # numericInput("room_night", "Number of nights to stay", value = 5),
+                # checkboxInput("is_superhost", "Has to be a superhost", FALSE)
   )
 )
 
 server <- function(input, output, session) {
+  
+  # Reactive expression for the data subsetted to what the user selected
   
   filteredData <- reactive({
     temp <- job
     if(input$Full_part_time !='All'){
       temp <- temp[temp$Full.Time.Part.Time.indicator == input$Full_part_time, ]
     }
-    
+    if (input$chosen_cate !='All') {
+      temp <- temp[temp$Job.Category == input$chosen_cate, ]
+    }
     temp[temp$Annual_salary >= input$Annual_salary[1] & temp$Annual_salary <= input$Annual_salary[2], ]
   })
   
@@ -760,6 +777,7 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server,options=list(height=530))
+
 
 
 ```
