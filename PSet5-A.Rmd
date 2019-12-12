@@ -50,15 +50,27 @@ job <-job[!duplicated(job), ]
 # dim(job) # Check the dimension of the data frame
 ```
 
+```{r}
+# drops <- c("Recruitment.Contact")
+job = job %>%
+  select(-c("Recruitment.Contact"))
+```
+
+
 ## IV. Missing values 
 
-As mentioned above, we fill all empty slots in the original dataset with NAs, and we will keep these NAs in our data frame. Later, depends on our tasks, we will decide whether to drop the NAs or not.
+As mentioned above, we fill all empty slots in the original dataset with NAs.
+
+After drawing a heatmap to show the missing patterns using `mi::missing_data.frame()`, we receive a warning message saying that all values in column `Recruiment Contact` are NAs. Therefore, we simply drop this column from our data frame. For other columns, we will keep these NAs for now.
 ```{r}
 library(mi)
 x <- missing_data.frame(job)
 image(x)
 ```
-
+```{r}
+library(extracat)
+visna(job)
+```
 
 
 ## V. Results
@@ -127,7 +139,6 @@ In order to extract meaningful vocabularies from the text descriptions, we take 
 
 After these manipulations on the text data, we can create a new data frame of word frequencies. We can also sort it by frequency and find out the most frequent words under minimum qualification requirements and preferred skills for all jobs or for any particular category of jobs that we are interested in.
 
-The table below demonstrates the 20 most frequent words in Minimum Qual Requirements among all jobs in out dataset.
 ```{r}
 job_docs <- VCorpus(VectorSource(job)) # Whole dataset
 # inspect(job_docs)
@@ -154,11 +165,12 @@ job_tech_pref_skil <- VCorpus(VectorSource(tech_jobs$Preferred.Skills))
 job_mini_req <- tm_map(job_mini_req, content_transformer(tolower))
 job_mini_req <- tm_map(job_mini_req, removeNumbers)
 job_mini_req <- tm_map(job_mini_req, removeWords, stopwords("english"))
-job_mini_req <- tm_map(job_mini_req, removeWords, c("the", "one", "two", "for", "must")) 
+job_mini_req <- tm_map(job_mini_req, removeWords, c("the", "one", "two", "for", "must", "year")) 
 job_mini_req <- tm_map(job_mini_req, removePunctuation)
 job_mini_req <- tm_map(job_mini_req, stripWhitespace)
 # job_mini_req <- tm_map(job_mini_req, stemDocument)
 ```
+The table below demonstrates the 20 most frequent words in Minimum Qual Requirements among all jobs in out dataset.
 ```{r}
 mini_req_matrix <- TermDocumentMatrix(job_mini_req)
 mini_freq_m <- as.matrix(mini_req_matrix)
@@ -167,9 +179,16 @@ mini_freq <- data.frame(word = names(mini_freq_v), freq=mini_freq_v)
 # head(mini_freq, 20)
 htmlTable(head(mini_freq, 20), caption="Minimum Qual Requirements in All Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
 ```
+<!-- ```{r} -->
+<!-- library(wordcloud2) -->
+<!-- library(webshot) -->
+<!-- webshot::install_phantomjs(force = TRUE) -->
+<!-- mini_freq_graph <- wordcloud2(data=mini_freq, color='random-light', backgroundColor='black') -->
+<!-- library("htmlwidgets") -->
+<!-- saveWidget(mini_freq_graph,"mini_freq_graph.html", selfcontained = F) -->
+<!-- ``` -->
 ```{r}
-library(wordcloud2)
-wordcloud2(data = mini_freq, color = 'random-light', backgroundColor = "black")
+wordcloud2(data=mini_freq, color='random-light', backgroundColor='black', size=0.8)
 ```
 
 ```{r}
@@ -181,7 +200,7 @@ wordcloud2(data = mini_freq, color = 'random-light', backgroundColor = "black")
 job_pref_skil <- tm_map(job_pref_skil, content_transformer(tolower))
 job_pref_skil <- tm_map(job_pref_skil, removeNumbers)
 job_pref_skil <- tm_map(job_pref_skil, removeWords, stopwords("english"))
-job_pref_skil <- tm_map(job_pref_skil, removeWords, c("the", "one", "two", "for", "must")) 
+job_pref_skil <- tm_map(job_pref_skil, removeWords, c("the", "one", "two", "for", "must", "year")) 
 job_pref_skil <- tm_map(job_pref_skil, removePunctuation)
 job_pref_skil <- tm_map(job_pref_skil, stripWhitespace)
 # job_pref_skil <- tm_map(job_pref_skil, stemDocument)
@@ -197,8 +216,10 @@ pref_freq <- pref_freq[-1,]
 htmlTable(head(pref_freq, 20), caption="Preferred Skills in All Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
-wordcloud2(data = pref_freq, color = 'random-light', backgroundColor = "black")
+library(wordcloud2)
+wordcloud2(data=pref_freq, color='random-light', backgroundColor='black', size=0.8)
 ```
+
 
 ```{r}
 # Tech Jobs cross Minimum Qual Requirements
@@ -209,7 +230,7 @@ wordcloud2(data = pref_freq, color = 'random-light', backgroundColor = "black")
 job_tech_mini_req <- tm_map(job_tech_mini_req, content_transformer(tolower))
 job_tech_mini_req <- tm_map(job_tech_mini_req, removeNumbers)
 job_tech_mini_req <- tm_map(job_tech_mini_req, removeWords, stopwords("english"))
-job_tech_mini_req <- tm_map(job_tech_mini_req, removeWords, c("the", "one", "two", "for", "must")) 
+job_tech_mini_req <- tm_map(job_tech_mini_req, removeWords, c("the", "one", "two", "for", "must", "year")) 
 job_tech_mini_req <- tm_map(job_tech_mini_req, removePunctuation)
 job_tech_mini_req <- tm_map(job_tech_mini_req, stripWhitespace)
 # job_tech_mini_req <- tm_map(job_tech_mini_req, stemDocument)
@@ -224,8 +245,10 @@ tech_mini_freq <- data.frame(word = names(tech_mini_freq_v), freq=tech_mini_freq
 htmlTable(head(tech_mini_freq, 20), caption="Minimum Qual Requirements in Technology Related Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
-wordcloud2(data = tech_mini_freq, color = 'random-light', backgroundColor = "black")
+library(wordcloud2)
+wordcloud2(data=tech_mini_freq, color='random-light', backgroundColor='black', size=0.8)
 ```
+
 
 ```{r}
 # Tech Jobs cross Preferred Skills
@@ -236,7 +259,7 @@ wordcloud2(data = tech_mini_freq, color = 'random-light', backgroundColor = "bla
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, content_transformer(tolower))
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeNumbers)
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeWords, stopwords("english"))
-job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeWords, c("the", "one", "two", "for", "must")) 
+job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeWords, c("the", "one", "two", "for", "must", "year")) 
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, removePunctuation)
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, stripWhitespace)
 # job_tech_pref_skil <- tm_map(job_tech_pref_skil, stemDocument)
@@ -251,8 +274,16 @@ tech_pref_freq <- tech_pref_freq[-1,]
 htmlTable(head(tech_pref_freq, 20), caption="Preferred Skills in Technology Related Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
-wordcloud2(data = tech_pref_freq, color = 'random-light', backgroundColor = "black")
+library(wordcloud2)
+wordcloud2(data = tech_pref_freq, color='random-light', backgroundColor='black', size=0.8)
 ```
+We can have plenty of observations from the four Word Clouds. For instance, we can see that for both Minimum Qual Requirements and Preferred Skills, *experience* is the most frequent word in all these four graphs, which makes sense, since previous working experience is indeed very important for applicants.
+
+Also, when comparing all jobs with technological jobs, we notice that for tech jobs prefer to hire employees with skills related to technology, since vocabularies like *computer* and *programming* appears a lot in these texts. Even some words about specific skills, such as *sql*, appear in our most frequent word list.
+
+Meanwhile, in all these four graphs, vocabularies like *skills*, *knowledge*, *management*, *communication* appear plenty of times. This makes sense since all employers want to hire people who have solid skills and are good at communication and cooperation.
+
+Finally, in general, we find that minimum requirements of all jobs and tech jobs graphs share almost the same set of frequent words, which we believe is due to the fact that **minimum** requirements are similar for all kinds of jobs.
 
 
 ```{r}
@@ -391,16 +422,6 @@ List three questions that you hope you will be able to answer from your research
 
     c) The relationship between salary vs. agency.
 
-
-
-# 2. Data Exploration
-
-### 2.1 The Data Discription
-
-
-
-
-
 ### 2.2 Short Summary of Initial Investigations
 
 From those three plots above, we can have the following obeservations:
@@ -499,83 +520,85 @@ Word Frequency and WordCloud from here:
 ```
 
 
-## 3.2(Song's title, not decided yet)
-```{r}
-job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", round(abs(Salary.Range.From - Salary.Range.To),2),
-                                 if_else(Salary.Frequency == "Daily", round(abs(Salary.Range.From - Salary.Range.To)*261,2),
-                                         round(abs(Salary.Range.From - Salary.Range.To)*261*8.4,2))
-                                 )
-                               )
-```
+<!-- ## 3.2(Song's title, not decided yet) -->
+<!-- ```{r} -->
+<!-- job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", round(abs(Salary.Range.From - Salary.Range.To),2), -->
+<!--                                  if_else(Salary.Frequency == "Daily", round(abs(Salary.Range.From - Salary.Range.To)*261,2), -->
+<!--                                          round(abs(Salary.Range.From - Salary.Range.To)*261*8.4,2)) -->
+<!--                                  ) -->
+<!--                                ) -->
+<!-- ``` -->
 
-```{r}
-extractdf <- data.frame("id" = job$Job.ID, 
-                        "agency" = job$Agency,
-                        "posting_type" = job$Posting.Type,
-                       "type" = job$Full.Time.Part.Time.indicator,
-                       "num_positions" = job$X..Of.Positions,
-                       "salary_annual_mean" = job$Annual_salary,
-                       "salaray_annual_range" = job$Annual_salary_range)
-```
-Lookes like we have duplication in the table.  Delete these duplications.
-```{r}
-sum(duplicated(extractdf))
+<!-- ```{r} -->
+<!-- extractdf <- data.frame("id" = job$Job.ID,  -->
+<!--                         "agency" = job$Agency, -->
+<!--                         "posting_type" = job$Posting.Type, -->
+<!--                        "type" = job$Full.Time.Part.Time.indicator, -->
+<!--                        "num_positions" = job$X..Of.Positions, -->
+<!--                        "salary_annual_mean" = job$Annual_salary, -->
+<!--                        "salaray_annual_range" = job$Annual_salary_range) -->
+<!-- ``` -->
+<!-- Lookes like we have duplication in the table.  Delete these duplications. -->
+<!-- ```{r} -->
+<!-- sum(duplicated(extractdf)) -->
 
-extractdf <- unique(extractdf) 
-extractdf
-```
+<!-- extractdf <- unique(extractdf)  -->
+<!-- extractdf -->
+<!-- ``` -->
 
-Make sure each column in the property data type.
-```{r}
-extractdf$id <- as.integer(as.character(extractdf$id))
-extractdf$num_positions <- as.integer(as.character(extractdf$num_positions))
-extractdf$salary_annual_mean <- as.numeric(as.character(extractdf$salary_annual_mean))
-extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annual_range))
-```
+<!-- Make sure each column in the property data type. -->
+<!-- ```{r} -->
+<!-- extractdf$id <- as.integer(as.character(extractdf$id)) -->
+<!-- extractdf$num_positions <- as.integer(as.character(extractdf$num_positions)) -->
+<!-- extractdf$salary_annual_mean <- as.numeric(as.character(extractdf$salary_annual_mean)) -->
+<!-- extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annual_range)) -->
+<!-- ``` -->
 
-```{r}
-library(devtools)
-devtools::install_github('madlogos/recharts')
-library(recharts)
-devtools::install_github('ramnathv/rCharts')
-library(rCharts)
-```
+<!-- ```{r} -->
+<!-- library(devtools) -->
+<!-- devtools::install_github('madlogos/recharts') -->
+<!-- library(recharts) -->
+<!-- devtools::install_github('ramnathv/rCharts') -->
+<!-- library(rCharts) -->
+<!-- ``` -->
 
-```{r}
-mydf1 <- na.omit(extractdf)
-head(mydf1)
-```
+<!-- ```{r} -->
+<!-- mydf1 <- na.omit(extractdf) -->
+<!-- head(mydf1) -->
+<!-- ``` -->
 
-```{r}
-p <- nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
-p$yAxis(axisLabel = "Annual salary range")
-p$xAxis(axisLabel = "Annual salary mean")
-```
+<!-- ```{r} -->
+<!-- p <- nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart')  -->
+<!-- p$yAxis(axisLabel = "Annual salary range") -->
+<!-- p$xAxis(axisLabel = "Annual salary mean") -->
+<!-- ``` -->
 
-```{r}
-options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500)
-rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point')
-```
+<!-- ```{r} -->
+<!-- options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500) -->
+<!-- rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point') -->
+<!-- ``` -->
 
-```{r}
-echart(mydf1,~salary_annual_mean,~salaray_annual_range,series = ~type)
-```
+<!-- ```{r} -->
+<!-- echart(mydf1,~salary_annual_mean,~salaray_annual_range,series = ~type) -->
+<!-- ``` -->
 
 
-Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'.
-```{r}
-mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID")
-mydf
-```
-```{r}
-summary(mydf$salary_annual_mean)
-summary(mydf$salaray_annual_range)
-```
+<!-- Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'. -->
+<!-- ```{r} -->
+<!-- mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID") -->
+<!-- mydf -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- summary(mydf$salary_annual_mean) -->
+<!-- summary(mydf$salaray_annual_range) -->
+<!-- ``` -->
 
-```{r}
-mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587))
-mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000))
-```
+<!-- ```{r} -->
+<!-- mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587)) -->
+<!-- mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000)) -->
+<!-- ``` -->
+<<<<<<< HEAD
+=======
 
 
 ## 3.3 Technology job posting trends
@@ -585,7 +608,7 @@ tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
 
 tech_job %>%
   filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
-  ggplot(aes(Full.Time.Part.Time.indicator)) + 
+  ggplot(aes(Full.Time.Part.Time.indicator)) +
   geom_bar(fill = 'lightblue') +
   labs(x = "Full time and part time")
 
@@ -624,13 +647,14 @@ tech_job %>%
 ```{r}
 tech_job %>%
   group_by(Civil.Service.Title) %>%
-  summarise(mean_salary = mean(salary)) %>%
+  summarise(mean_salary = mean(Annual_salary)) %>%
   ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
   geom_col(fill = 'lightblue') + 
   labs(x = 'Civil service title', 
        y = 'Average annual salary') + 
   coord_flip()
 ```
+>>>>>>> cdb3af3b1b1bd4ab4d5f85c673842a162223bd23
 
 As a result, for technology job postings in New York City:
   
