@@ -55,6 +55,70 @@ As mentioned above, we fill all empty slots in the original dataset with NAs, an
 
 
 ## V. Results
+This part is mainly contributed by Mingrui.
+```{r}
+categoryList <- job %>%
+  filter(!is.na(Job.Category))%>%
+  select(Job.Category, Job.ID) %>%
+  mutate(Job.Category = as.character(Job.Category),
+         Job.Category = str_split(Job.Category, ",|&|,&"))
+
+popular_category <-
+  as.data.frame(unlist(categoryList["Job.Category"],use.names=FALSE))%>%
+  set_colnames("Category")%>%
+  mutate(Category = trimws(Category,"both")) %>%
+  filter(!is.na(Category))%>%
+  filter(Category !="")%>%
+  filter(is.character(Category ))  %>%
+  group_by(Category) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  slice(1:25)
+  
+ggplot(popular_category,aes(x = fct_reorder(Category,count), y = count))+
+  geom_col(color = "black", fill = "orange")+
+  ggtitle("Job Count by Category") +
+  labs(x = "Category", y = "Count") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  coord_flip()
+```
+```{r}
+job <- job %>%
+  mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)
+
+Annual = job[job$Salary.Frequency=="Annual",]
+ggplot(Annual, aes(salary)) +
+  geom_histogram(bins = 40, color = "black", fill = "orange") +
+  ggtitle("Salary Distribution (Annual)") + 
+  labs(x = "Salary Range", y = "Count") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r}
+Daily = job[job$Salary.Frequency=="Daily",]
+ggplot(data = Daily, aes(Daily$salary)) +
+  geom_histogram(bins = 40, color = "black", fill = "orange") +
+  ggtitle("Salary Distribution (Daily)") + 
+  labs(x = "Salary Range", y = "Count") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r}
+Hourly = job[job$Salary.Frequency=="Hourly",]
+ggplot(data = Hourly, aes(Hourly$salary)) +
+  geom_histogram(bins = 40, color = "black", fill = "orange") +
+  ggtitle("Salary Distribution (Hourly)") + 
+  labs(x = "Salary Range", y = "Count") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Meanwhile, we also want to study the minimum qualification requirements and preferred skills for the available jobs in NYC. We want to find if there are any patterns in these two columns or if we can extract any useful information from them. In order to illustrate our findings graphfically, we decide to use Word Clouds to show the most frequent words in these texts.
+
+So what is Word Clouds? Word Clouds is visual representations of text data. They are useful for quickly perceiving the most prominent terms, which makes them widely used in media and well understood by the public.
+
+A Word Cloud is a collection of words depicted in different sizes. The bigger and bolder the word appears, the greater frequency within a given text and the more important it is.
+
+In order to extract meaningful vocabularies from the text descriptions, we take advantage of the text mining package `tm` in R. This package is based on the ideas of Natural Language Processing (NLP). It have methods that can tranform all words to lowercases, remove words that are uninformative in Enlighs such as "a" and "the", and get rid of whitespaces and punctuations.
+
+After these manipulations on the text data, we can create a new data frame of word frequencies. We can also sort it by frequency and find out the most frequent words under minimum qualification requirements and preferred skills for all jobs or for any particular category of jobs that we are interested in.
 ```{r}
 library(tm)
 job_docs <- VCorpus(VectorSource(job)) # Whole dataset
@@ -67,7 +131,7 @@ job_pref_skil <- VCorpus(VectorSource(job$Preferred.Skills)) # Preferred Skills
 ```{r}
 # Tech Jobs
 tech_jobs <- subset(job, Job.Category == "Information Technology & Telecommunications")
-dim(tech_jobs) # There should be 28 jobs related to technology
+# dim(tech_jobs) # There should be 28 jobs related to technology
 job_tech_mini_req <- VCorpus(VectorSource(tech_jobs$Minimum.Qual.Requirements))
 # inspect(job_tech_mini_req)
 job_tech_pref_skil <- VCorpus(VectorSource(tech_jobs$Preferred.Skills))
@@ -93,6 +157,7 @@ mini_freq_m <- as.matrix(mini_req_matrix)
 mini_freq_v <- sort(rowSums(mini_freq_m), decreasing=TRUE)
 mini_freq <- data.frame(word = names(mini_freq_v), freq=mini_freq_v)
 head(mini_freq, 20)
+# print(head(mini_freq, 20), digits = NULL, quote = FALSE, right = TRUE, row.names = FALSE, max = NULL)
 ```
 ```{r}
 library(wordcloud2)
@@ -216,64 +281,6 @@ List three questions that you hope you will be able to answer from your research
 
 ### 2.2 Short Summary of Initial Investigations
 
-
-```{r}
-categoryList <- job %>%
-  filter(!is.na(Job.Category))%>%
-  select(Job.Category, Job.ID) %>%
-  mutate(Job.Category = as.character(Job.Category),
-         Job.Category = str_split(Job.Category, ",|&|,&"))
-
-popular_category <-
-  as.data.frame(unlist(categoryList["Job.Category"],use.names=FALSE))%>%
-  set_colnames("Category")%>%
-  mutate(Category = trimws(Category,"both")) %>%
-  filter(!is.na(Category))%>%
-  filter(Category !="")%>%
-  filter(is.character(Category ))  %>%
-  group_by(Category) %>%
-  summarise(count = n()) %>%
-  arrange(desc(count)) %>%
-  slice(1:25)
-  
-ggplot(popular_category,aes(x = fct_reorder(Category,count), y = count))+
-  geom_col(color = "black", fill = "orange")+
-  ggtitle("Job Count by Category") +
-  labs(x = "Category", y = "Count") + 
-  theme(plot.title = element_text(hjust = 0.5)) + 
-  coord_flip()
-```
-
-```{r}
-job <- job%>%
-  mutate(salary = Salary.Range.From+(Salary.Range.To-Salary.Range.From)/2)
-
-Annual = job[job$Salary.Frequency=="Annual",]
-ggplot(Annual, aes(salary)) +
-  geom_histogram(bins = 40, color = "black", fill = "orange") +
-  ggtitle("Salary Distribution (Annual)") + 
-  labs(x = "Salary Range", y = "Count") + 
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
-```{r}
-Daily = job[job$Salary.Frequency=="Daily",]
-ggplot(data = Daily, aes(Daily$salary)) +
-  geom_histogram(bins = 40, color = "black", fill = "orange") +
-  ggtitle("Salary Distribution (Daily)") + 
-  labs(x = "Salary Range", y = "Count") + 
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
-```{r}
-Hourly = job[job$Salary.Frequency=="Hourly",]
-ggplot(data = Hourly, aes(Hourly$salary)) +
-  geom_histogram(bins = 40, color = "black", fill = "orange") +
-  ggtitle("Salary Distribution (Hourly)") + 
-  labs(x = "Salary Range", y = "Count") + 
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
 From those three plots above, we can have the following obeservations:
 1. For most of the jobs, the salaries are given annually. Meanwhile, there are also some jobs which have hourly salaries. Only a few of those jobs have daily salaries.
 2. For salaries calculated annually, it has approximately right-skewed normal distribution.
@@ -325,13 +332,13 @@ In conclusion, these are all we have done right now. We identify the number of j
 
 Word Frequency and WordCloud from here:
 ```{r}
-library(SnowballC)
-library(wordcloud)
-library(RColorBrewer)
-set.seed(1234)
-wordcloud(words = d$word, freq = d$freq, min.freq = 1,
-          max.words=200, random.order=FALSE, rot.per=0.35, 
-          colors=brewer.pal(8, "Dark2"))
+#library(SnowballC)
+#library(wordcloud)
+#library(RColorBrewer)
+#set.seed(1234)
+#wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          #max.words=200, random.order=FALSE, rot.per=0.35, 
+          #colors=brewer.pal(8, "Dark2"))
 ```
 
 
