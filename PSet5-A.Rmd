@@ -429,6 +429,8 @@ List three questions that you hope you will be able to answer from your research
     b) The relationship between salary vs. job category.
 
     c) The relationship between salary vs. agency.
+    
+    d) The relationship between salary vs. salary range.
 
 ### 2.2 Short Summary of Initial Investigations
 
@@ -549,8 +551,9 @@ extractdf$AnnualSalaryRange <- as.numeric(as.character(extractdf$AnnualSalaryRan
 
 ```{r}
 library(devtools)
-#devtools::install_github('madlogos/recharts')
+devtools::install_github('madlogos/recharts')
 library(recharts)
+devtools::install_github('ramnathv/rCharts')
 library(rCharts)
 mydf1 <- na.omit(extractdf)
 ```
@@ -573,6 +576,7 @@ p$yAxis(axisLabel = "Annual Salary Range")
 p$xAxis(axisLabel = "Annual salary Mean")
 p$chart(showDistX = TRUE, showDistY = TRUE)
 p$chart(color = c("blue","yellow"))
+
 p
 ```
 
@@ -598,7 +602,7 @@ cate_freq_mean = cate_freq_mean[order(cate_freq_mean$Freq,decreasing = TRUE),]
 
 ```{r}
 top_popular_cate = head(cate_freq_mean,30)
-hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on top 30 popular job categories')
+hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on top 30 popular job categories',subtitle = "(categories can be filtered by click the legend)")
 ```
 
 <p> The bubble plot shows the top 30 popular job categories in the relation between annual salary and its range.  The top 30 popular job categories means the amount of job types published in the NY job website.  From the plot, we noticed that most of them have salary range between 100k to 200k and the annual salary mean crossed from 60k to 90k dollars.  The size of bubbles displaies the amount of a type of work that is published online.  In these job categories, most job categories that have annual salary over 80k are  technology related.
@@ -607,7 +611,7 @@ hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bub
 <p> To see all the categories the following plot provided information:
 
 ```{r}
-hPlot(Annual_salary_range~Annual_salary_mean,data = cate_freq_mean,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on job categories')
+hPlot(Annual_salary_range~Annual_salary_mean,data = cate_freq_mean,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on job categories',subtitle = "(categories can be filtered by click the legend)")
 ```
 
 <p> The above plot shows all the categories.  In general, the salary range are wider compared with the top 30 categories.  Planning Maintenance and Producement Building Operations have a extremly high annual salary mean, they all over 150k dollars/year.  Human Resource Finance and Health Policy are also obviously distinguished with others since their annual are over 100k.  The next group of categories with the annual salay mean between 80k to 100k, they mostly related with technology, innovation, finance, and service.  The next group of categories with mean salary between 60k to 80k, their categories are similar with the group of 80k to 90k, but this group have the large size of needness.  For the salary group less than 60k, they also have low annual salary range, their sizes of needness online are also small.
@@ -683,41 +687,7 @@ As a result, for technology job postings in New York City:
   
 
 
-# 4. Conclusion
-
-
-# 5. Future Works
-
-(If we are provided more time, what we want to do?)
-
-
-
-# 6. Requirements and References
-
-## 6.1 Reqirements
-
-### 6.1.1 File format
-(You don't have to use the same format for this assignment -- PSet 5, part A -- and the final project itself.)
-
-Choices are:
-
-pdf_document  
-
-html_document  
-
-bookdown book: https://bookdown.org/yihui/bookdown/
-
-shiny app: https://shiny.rstudio.com/  
-
-(Remember that it's ok to have pieces of the project that don't fit into the chosen output format; in those cases you can provide links to the relevant material.)
-
-    We decide to use the html_document as our output format.
-
-### 6.1.2 Instructions
-Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
-
-
-### 6.2 References
+# References
 
 ```{r}
 library(leaflet)
