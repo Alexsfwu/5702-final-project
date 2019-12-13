@@ -237,43 +237,49 @@ job_tech_pref_skil <- VCorpus(VectorSource(tech_jobs$Preferred.Skills))
 job_mini_req <- tm_map(job_mini_req, content_transformer(tolower))
 job_mini_req <- tm_map(job_mini_req, removeNumbers)
 job_mini_req <- tm_map(job_mini_req, removeWords, stopwords("english"))
-job_mini_req <- tm_map(job_mini_req, removeWords, c("the", "one", "two", "for", "must", "year")) 
+job_mini_req <- tm_map(job_mini_req, removeWords, c("the", "one", "two", "for", "must", "year", "including")) 
 job_mini_req <- tm_map(job_mini_req, removePunctuation)
 job_mini_req <- tm_map(job_mini_req, stripWhitespace)
 # job_mini_req <- tm_map(job_mini_req, stemDocument)
 ```
-The table below demonstrates the 20 most frequent words in Minimum Qual Requirements among all jobs in out dataset.
+
+
 ```{r}
 mini_req_matrix <- TermDocumentMatrix(job_mini_req)
 mini_freq_m <- as.matrix(mini_req_matrix)
 mini_freq_v <- sort(rowSums(mini_freq_m), decreasing=TRUE)
 mini_freq <- data.frame(word = names(mini_freq_v), freq=mini_freq_v)
-
+# head(mini_freq, 20)
 htmlTable(head(mini_freq, 20), caption="Minimum Qual Requirements in All Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
 ```
-<!-- ```{r} -->
-<!-- library(wordcloud2) -->
-<!-- library(webshot) -->
-<!-- webshot::install_phantomjs(force = TRUE) -->
-<!-- mini_freq_graph <- wordcloud2(data=mini_freq, color='random-light', backgroundColor='black') -->
-<!-- library("htmlwidgets") -->
-<!-- saveWidget(mini_freq_graph,"mini_freq_graph.html", selfcontained = F) -->
-<!-- ``` -->
+```{r}
+library(wordcloud2)
+library(webshot)
+webshot::install_phantomjs(force = TRUE)
+mini_freq_graph <- wordcloud2(data=mini_freq, color='random-light', backgroundColor='black')
+library("htmlwidgets")
+saveWidget(mini_freq_graph,"mini_freq_graph.html", selfcontained = F)
+```
 ```{r}
 library(wordcloud2)
 wordcloud2(data=mini_freq, color='random-light', backgroundColor='black', size=0.8)
 ```
 
+<!-- ```{r showChoro1} -->
+<!-- htmltools::includeHTML("~/Documents/Columbia_Fall_2019/5702_Projects/5702-final-project/mini_freq_graph.html") -->
+<!-- ``` -->
+
+This table shows the 20 most frequent words in Preferred Skills among all jobs in out dataset.
 ```{r}
 # All Jobs cross Preferred Skills
 job_pref_skil <- tm_map(job_pref_skil, content_transformer(tolower))
 job_pref_skil <- tm_map(job_pref_skil, removeNumbers)
 job_pref_skil <- tm_map(job_pref_skil, removeWords, stopwords("english"))
-job_pref_skil <- tm_map(job_pref_skil, removeWords, c("the", "one", "two", "for", "must", "year")) 
+job_pref_skil <- tm_map(job_pref_skil, removeWords, c("the", "one", "two", "for", "must", "year", "including")) 
 job_pref_skil <- tm_map(job_pref_skil, removePunctuation)
 job_pref_skil <- tm_map(job_pref_skil, stripWhitespace)
 ```
-The table below demonstrates the 20 most frequent words in Preferred Skills among all jobs in out dataset.
+
 ```{r}
 pref_skil_matrix <- TermDocumentMatrix(job_pref_skil)
 pref_freq_m <- as.matrix(pref_skil_matrix)
@@ -282,22 +288,36 @@ pref_freq <- data.frame(word = names(pref_freq_v), freq=pref_freq_v)
 pref_freq <- pref_freq[-1,]
 htmlTable(head(pref_freq, 20), caption="Preferred Skills in All Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
 ```
+
 ```{r}
 library(wordcloud2)
-wordcloud2(data=pref_freq, color='random-light', backgroundColor='black', size=0.8)
+library(webshot)
+webshot::install_phantomjs(force = TRUE)
+pref_freq_graph <- wordcloud2(data=pref_freq, color='random-light', backgroundColor='black')
+library("htmlwidgets")
+saveWidget(pref_freq_graph,"pref_freq_graph.html", selfcontained = F)
 ```
 
+<!-- ```{r} -->
+<!-- library(wordcloud2) -->
+<!-- wordcloud2(data=pref_freq, color='random-light', backgroundColor='black', size=0.8) -->
+<!-- ``` -->
 
+<!-- ```{r showChoro1} -->
+<!-- htmltools::includeHTML("~/Documents/Columbia_Fall_2019/5702_Projects/5702-final-project/pref_freq_graph.html") -->
+<!-- ``` -->
+
+This table shows the 20 most frequent words in Minimum Qual Requirements among tech jobs in out dataset.
 ```{r}
 # Tech Jobs cross Minimum Qual Requirements
 job_tech_mini_req <- tm_map(job_tech_mini_req, content_transformer(tolower))
 job_tech_mini_req <- tm_map(job_tech_mini_req, removeNumbers)
 job_tech_mini_req <- tm_map(job_tech_mini_req, removeWords, stopwords("english"))
-job_tech_mini_req <- tm_map(job_tech_mini_req, removeWords, c("the", "one", "two", "for", "must", "year")) 
+job_tech_mini_req <- tm_map(job_tech_mini_req, removeWords, c("the", "one", "two", "for", "must", "year", "including")) 
 job_tech_mini_req <- tm_map(job_tech_mini_req, removePunctuation)
 job_tech_mini_req <- tm_map(job_tech_mini_req, stripWhitespace)
 ```
-The table below demonstrates the 20 most frequent words in Minimum Qual Requirements among all jobs in out dataset.
+
 ```{r}
 tech_mini_matrix <- TermDocumentMatrix(job_tech_mini_req)
 tech_mini_freq_m <- as.matrix(tech_mini_matrix)
@@ -306,17 +326,25 @@ tech_mini_freq <- data.frame(word = names(tech_mini_freq_v), freq=tech_mini_freq
 htmlTable(head(tech_mini_freq, 20), caption="Minimum Qual Requirements in Technology Related Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
+# library(wordcloud2)
+# wordcloud2(data=tech_mini_freq, color='random-light', backgroundColor='black', size=0.8)
+```
+```{r}
 library(wordcloud2)
-wordcloud2(data=tech_mini_freq, color='random-light', backgroundColor='black', size=0.8)
+library(webshot)
+webshot::install_phantomjs(force = TRUE)
+tech_mini_freq_graph <- wordcloud2(data=tech_mini_freq, color='random-light', backgroundColor='black')
+library("htmlwidgets")
+saveWidget(tech_mini_freq_graph,"tech_mini_freq_graph.html", selfcontained = F)
 ```
 
-
+This table shows the 20 most frequent words in Preferred Skills among tech jobs in out dataset.
 ```{r}
 # Tech Jobs cross Preferred Skills
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, content_transformer(tolower))
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeNumbers)
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeWords, stopwords("english"))
-job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeWords, c("the", "one", "two", "for", "must", "year")) 
+job_tech_pref_skil <- tm_map(job_tech_pref_skil, removeWords, c("the", "one", "two", "for", "must", "year", "including")) 
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, removePunctuation)
 job_tech_pref_skil <- tm_map(job_tech_pref_skil, stripWhitespace)
 ```
@@ -331,8 +359,13 @@ htmlTable(head(tech_pref_freq, 20), caption="Preferred Skills in Technology Rela
 ```
 ```{r}
 library(wordcloud2)
-wordcloud2(data = tech_pref_freq, color='random-light', backgroundColor='black', size=0.8)
+library(webshot)
+webshot::install_phantomjs(force = TRUE)
+tech_pref_freq_graph <- wordcloud2(data=tech_pref_freq, color='random-light', backgroundColor='black')
+library("htmlwidgets")
+saveWidget(tech_pref_freq_graph,"tech_pref_freq_graph.html", selfcontained = F)
 ```
+
 
 We can have plenty of observations from the four Word Clouds. For instance, we can see that for both Minimum Qual Requirements and Preferred Skills, *experience* is the most frequent word in all these four graphs, which makes sense, since previous working experience is indeed very important for applicants.
 
