@@ -53,10 +53,7 @@ library(wordcloud2)
 job <- read.csv("data/raw/NYC_Jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
-# Remove duplicate jobs 
 job <-job[!duplicated(job), ]
-
-# dim(job) # Check the dimension of the data frame
 ```
 
 
@@ -385,6 +382,7 @@ tech_job %>%
 
 
 
+<<<<<<< HEAD
 <!-- ```{r} -->
 <!-- library(leaflet) -->
 <!-- job_with_location = read_csv('job_with_lat_long.csv')%>% -->
@@ -434,6 +432,53 @@ tech_job %>%
 
 <!-- ``` -->
 
+=======
+```{r}
+# library(leaflet)
+# job_with_location = read_csv('job_with_lat_long.csv')%>%
+#   filter(!is.na(latitude))%>%
+#   filter(longitude < -74.0060 + 1) %>%
+#   filter(longitude > -74.0060 - 1) %>%
+#   filter(latitude < 40.7128 + 0.8) %>%
+#    filter(latitude > 40.7128 - 0.8)
+#   
+# #removing values for which there were no coordinates
+# high_salary_geocodes = job_with_location%>%
+#   filter(Annual_salary>mean(Annual_salary))
+# low_salary_geocodes = job_with_location%>%
+#   filter(Annual_salary<mean(Annual_salary))
+# 
+# #add custom color column
+# high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
+# low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
+# 
+# salary_geocodes = rbind(high_salary_geocodes, low_salary_geocodes)
+# 
+# main_salary<-salary_geocodes%>%
+#     filter(Annual_salary >  quantile(salary_geocodes$Annual_salary,0.05))%>%
+#     filter(Annual_salary < quantile(salary_geocodes$Annual_salary,0.95))
+# 
+# main_salary<-main_salary[order(main_salary$Annual_salary),]
+# 
+# main_salary %>% 
+#   leaflet() %>% 
+#   setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
+#   addTiles() %>% 
+#   addCircleMarkers(lng = ~longitude, 
+#                    lat = ~latitude, 
+#                    radius = 3, 
+#                    color = ~color, 
+#                    popup = ~paste("<strong>Angency</strong>", salary_geocodes$Agency,
+#                                   "<br /><strong>Job Title:</strong>", salary_geocodes$Business.Title,
+#                                   "<br /><strong>Annual Salary:</strong>","$",main_salary$Annual_salary,
+#                                   "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))%>%
+#   addLegend("bottomright", 
+#             colors = c('red', 'blue'), 
+#             labels = c('high_salary', 'low_salary'),
+#             title = "Salary",
+#     opacity = 1
+#   )
+>>>>>>> 642f7fcf5e09827e6b2501d3a7b310c2288ebe9c
 
 
 ## VII. Conclusion
@@ -522,7 +567,13 @@ Word Frequency and WordCloud from here:
 ```
 
 
-## 3.2(Song's title, not decided yet)
+## 3.2 Explore the relationship between salary and its range
+
+Noticed that the salaries may have huge differences when the differences of positions, in this section, we are trying to explore the relationship between salary and its ranges.
+
+Here we need to clarify that the "salary" means the average of each job salary and the "salary range" means the difference between the maximum salary and minimum salary of this job position.
+
+To make sure each job salary can be paired in the same unit, we convert all the salaries originally to annual salary, extract the columns we may need, and remove the duplications.
 
 ```{r}
 job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", 
@@ -532,30 +583,21 @@ job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual
                                                 round(abs(Salary.Range.From - Salary.Range.To)*261*8.4,2))
                       ) 
             ) 
-```
-
-```{r}
+# extract a dataframe that contains the dolumns that we may need to use
 extractdf <- data.frame("id" = job$Job.ID, 
                         "agency" = job$Agency,
                         "posting_type" = job$Posting.Type,
                        "type" = job$Full.Time.Part.Time.indicator,
                        "num_positions" = job$X..Of.Positions,
-                       "salary_annual_mean" = job$Annual_salary,
-                       "salaray_annual_range" = job$Annual_salary_range)
-```
-Lookes like we have duplication in the table.  Delete these duplications.
-```{r}
-sum(duplicated(extractdf))
+                       "AnnualSalaryMean" = job$Annual_salary,
+                       "AnnualSalaryRange" = job$Annual_salary_range)
+# remove the duplication
 extractdf <- unique(extractdf) 
-extractdf
-```
-
-Make sure each column in the property data type.
-```{r}
+#Make sure each column in the property data type.
 extractdf$id <- as.integer(as.character(extractdf$id))
 extractdf$num_positions <- as.integer(as.character(extractdf$num_positions))
-extractdf$salary_annual_mean <- as.numeric(as.character(extractdf$salary_annual_mean))
-extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annual_range))
+extractdf$AnnualSalaryMean <- as.numeric(as.character(extractdf$AnnualSalaryMean))
+extractdf$AnnualSalaryRange <- as.numeric(as.character(extractdf$AnnualSalaryRange))
 ```
 
 ```{r}
@@ -563,67 +605,66 @@ library(devtools)
 #devtools::install_github('madlogos/recharts')
 library(recharts)
 library(rCharts)
-```
-
-```{r}
 mydf1 <- na.omit(extractdf)
-head(mydf1)
 ```
 
 ```{r}
-options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500)
-rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point')
+options(RCHART_WIDTH = 600, RCHART_HEIGHT = 400)
+rPlot(AnnualSalaryRange~AnnualSalaryMean | type, data = mydf1, color = 'type', type = 'point')
 ```
 
+<p> The plot above shows the relation between salary range and mean of salary of each job position divided by two subplot based on the full-time job or part-time job.  
+
+<p>  Overall, the distributions of two types of job, full-time and part-time, are not have a huge differences, but the amount of part-time jobs are greatly less than full-time jobs.  Most of jobs with the salary lower than 150k/yr and the range of these jobs' salaries are less than 50k.  When the salary range over 50k, there is an obvious positive relationship between these two.  
+
+<p> Though most of part time jobs take salary hourly or daily instead of yearly, when all of them convert to annual salary, they did not have obvious difference.  Therefore, we will put them together to check in the next plot.
+
+
 ```{r}
-p <-nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
-p$yAxis(axisLabel = "Annual salary range")
-p$xAxis(axisLabel = "Annual salary mean")
+p <-nPlot(AnnualSalaryRange~AnnualSalaryMean,group='type',data=mydf1, type='scatterChart') 
+p$yAxis(axisLabel = "Annual Salary Range")
+p$xAxis(axisLabel = "Annual salary Mean")
 p$chart(showDistX = TRUE, showDistY = TRUE)
 p$chart(color = c("blue","yellow"))
 p
 ```
 
+<p> From the interactive scatter plot above, in general, the higher salary we have, the larger salary range will have.  Moreover, the variance of salary range is increasing with the increasing of the salary income.  Noticed that there are many jobs only provided a fixed number of salary so their ranges are zero.  Most of salary range is less than 40000 dollars, and most salary mean are gathered between 20000 to 100000 dollars.  When the salary range is between 80000 to 140000 dollars, there is an obvious positive raltionship between salary mean and its range.  This is suitable for both part-time jobs or full-time jobs.
 
 
+To figure out the mean of salary and its range based on different categories of jobs, we merge the job categories in our extracted table. 
 
-Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'.
 ```{r}
 mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID")
 mydf$Job.Category <- as.factor(mydf$Job.Category)
-```
-```{r}
-summary(mydf$salary_annual_mean)
-summary(mydf$salaray_annual_range)
-```
-
-```{r}
-mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587))
-mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000))
-```
-
-```{r}
 cate_freq_mean = as.data.frame(table(mydf$Job.Category))
 cate_freq_mean$Annual_salary_mean <- NA
-for (i in 1:110){cate_freq_mean$Annual_salary_mean[i] <- mean(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+for (i in 1:110){cate_freq_mean$Annual_salary_mean[i] <- mean(mydf$AnnualSalaryMean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
 cate_freq_mean$cate_sala_max <- NA
-for (i in 1:110){cate_freq_mean$cate_sala_max[i] <- max(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+for (i in 1:110){cate_freq_mean$cate_sala_max[i] <- max(mydf$AnnualSalaryMean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
 cate_freq_mean$cate_sala_min <- NA
-for (i in 1:110){cate_freq_mean$cate_sala_min[i] <- min(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+for (i in 1:110){cate_freq_mean$cate_sala_min[i] <- min(mydf$AnnualSalaryMean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
 cate_freq_mean$Annual_salary_range <- cate_freq_mean$cate_sala_max - cate_freq_mean$cate_sala_min
-
 cate_freq_mean = cate_freq_mean[order(cate_freq_mean$Freq,decreasing = TRUE),]
 ```
+
 
 ```{r}
 top_popular_cate = head(cate_freq_mean,30)
 hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on top 30 popular job categories')
 ```
 
+<p> The bubble plot shows the top 30 popular job categories in the relation between annual salary and its range.  The top 30 popular job categories means the amount of job types published in the NY job website.  From the plot, we noticed that most of them have salary range between 100k to 200k and the annual salary mean crossed from 60k to 90k dollars.  The size of bubbles displaies the amount of a type of work that is published online.  In these job categories, most job categories that have annual salary over 80k are  technology related.
+
+
+<p> To see all the categories the following plot provided information:
 
 ```{r}
 hPlot(Annual_salary_range~Annual_salary_mean,data = cate_freq_mean,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on job categories')
 ```
+
+<p> The above plot shows all the categories.  In general, the salary range are wider compared with the top 30 categories.  Planning Maintenance and Producement Building Operations have a extremly high annual salary mean, they all over 150k dollars/year.  Human Resource Finance and Health Policy are also obviously distinguished with others since their annual are over 100k.  The next group of categories with the annual salay mean between 80k to 100k, they mostly related with technology, innovation, finance, and service.  The next group of categories with mean salary between 60k to 80k, their categories are similar with the group of 80k to 90k, but this group have the large size of needness.  For the salary group less than 60k, they also have low annual salary range, their sizes of needness online are also small.
+
 
 
 
@@ -676,6 +717,7 @@ tech_job %>%
 
 ```{r}
 tech_job %>%
+  filter(!is.na(tech_job$Civil.Service.Title)) %>%
   group_by(Civil.Service.Title) %>%
   summarise(mean_salary = mean(Annual_salary)) %>%
   ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
@@ -737,12 +779,16 @@ Be sure to review the final project instructions (https://edav.info/project.html
 
 ```{r}
 library(leaflet)
-job = read_csv('data/raw/NYC_Jobs.csv')%>%
+job = read_csv('data/clean/job_with_lat_long.csv')%>%
   filter(!is.na(latitude)) %>%
   filter(longitude < -74.0060 + 1) %>%
   filter(longitude > -74.0060 - 1) %>%
   filter(latitude < 40.7128 + 0.8) %>%
   filter(latitude > 40.7128 - 0.8)
+
+job$Full.Time.Part.Time.indicator[job$Full.Time.Part.Time.indicator == 'F'] = 'Full time'
+
+job$Full.Time.Part.Time.indicator[job$Full.Time.Part.Time.indicator == 'P'] = 'Part time'
 
 job = job %>%
   select(-'Job.Category')
@@ -750,7 +796,6 @@ df_popular_test = df_popular[,-3]
 
 job = unique(merge(df_popular_test, job, by = 'Job.ID'))
 
-#removing values for which there were no coordinates
 high_salary_geocodes = job %>%
   filter(Annual_salary > mean(Annual_salary))
 low_salary_geocodes = job %>%
@@ -768,17 +813,15 @@ ui <- bootstrapPage(
   leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(top = 10, left = 50,
                 selectInput(inputId = "Full_part_time","Choose full time or part time:",
-                            c("All", "F", "P")
+                            c("All", "Full time", "Part time")
                 ),
                 selectInput(inputId = "chosen_cate","Choose the category that you want:",
-                            c("All", "Maintenance", "Finance")
+                            c("All", popular_category$Category)
                 ),
                 sliderInput("Annual_salary", "Slide bar to choose the range of salary:", 
                             50000, 100000,
                             value = range(50000:100000), step = 10000
                 )
-                # numericInput("room_night", "Number of nights to stay", value = 5),
-                # checkboxInput("is_superhost", "Has to be a superhost", FALSE)
   )
 )
 
