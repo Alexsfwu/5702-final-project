@@ -414,7 +414,7 @@ To
     
     Shaofeng will work on the data cleaning and mabipulation, and he will try to find connections among NAs or may come up with interesting topics when doing the data cleaning. 
     
-    Yujing will investigate on the topic of salary vs. regions, and she also wants to draw a map to show the salary's region distribution.
+    Yujing will investigate on the topic of mean of salary vs. salary range, and she also wants to draw plots to show the job types and job categories of these variables.
     
     Mingrui will focus on the topic of salary vs. job category. Using different groups of job category to classify different levels of salaries may be something could be explored.
     
