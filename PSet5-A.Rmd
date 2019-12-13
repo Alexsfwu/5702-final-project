@@ -239,10 +239,8 @@ pref_freq_m <- as.matrix(pref_skil_matrix)
 pref_freq_v <- sort(rowSums(pref_freq_m), decreasing=TRUE)
 pref_freq <- data.frame(word = names(pref_freq_v), freq=pref_freq_v)
 pref_freq <- pref_freq[-1,]
-# 
-(pref_freq, 20)
-htmlTable(
-  (pref_freq, 20), caption="Preferred Skills in All Jobs Word Frequency", 
+
+htmlTable(head(pref_freq, 20), caption="Preferred Skills in All Jobs Word Frequency", 
           er=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
@@ -267,9 +265,7 @@ tech_mini_freq_m <- as.matrix(tech_mini_matrix)
 tech_mini_freq_v <- sort(rowSums(tech_mini_freq_m), decreasing=TRUE)
 tech_mini_freq <- data.frame(word = names(tech_mini_freq_v), freq=tech_mini_freq_v)
 # 
-(tech_mini_freq, 20)
-htmlTable(
-  (tech_mini_freq, 20), caption="Minimum Qual Requirements in Technology Related Jobs Word Frequency", 
+htmlTable(head(tech_mini_freq, 20), caption="Minimum Qual Requirements in Technology Related Jobs Word Frequency", 
           er=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
