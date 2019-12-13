@@ -48,6 +48,11 @@ library(RColorBrewer)
 library(shiny)
 library(extracat)
 library(wordcloud2)
+library(devtools)
+#devtools::install_github('madlogos/recharts')
+library(recharts)
+library(rCharts)
+library(scales)
 ```
 ```{r}
 job <- read.csv("data/raw/NYC_Jobs.csv") # Read data from csv file
@@ -183,32 +188,36 @@ df_popular<-df%>%
   group_by(Job.Category,month)%>%
   mutate(count = n())
 ```
+
 ```{r}
-ggplot(df_popular, aes(x=month,y=Job.Category,fill=Job.Category))+
+ggplot(df_popular, aes(x=month,y=fct_reorder(Job.Category,count),fill=Job.Category))+
   geom_density_ridges(scale = 3, show.legend = FALSE) + theme_ridges()+
   labs(x="month",y="count")+
+  scale_x_continuous(name="month",breaks = seq(1,12,1) ,limits=c(0, 12))+
   ggtitle("The counts of insects treated with different insecticides.")+
   theme(plot.title = element_text(hjust = 0.5))
 ```
+The plot above showed us the change in the number of posting of popular categories from January to December. As we can see most of the job posting posted between August to December, which makes sense because most recruiting season happens during the fall. We also can tell some of the job categories has demand in other seasons. For example, Public Safty, Inspections and Enforcement also have some recruiting demand in May. Some of the job categories have stable recruiting demand around all year long, like Maintenance, Architecture, and Engineering.
+
 ```{r}
 ## all job posting with only category, anuual salary and job id
 ggplot(df_popular,aes(x = reorder(Job.Category,Annual_salary,FUN=mean), y = Annual_salary)) +
 geom_boxplot(color = "black", fill = "orange") +
 ggtitle("Distribution of Salaries w.r.t Different Categories") + 
-labs(x = "Category", y = "Anual Salary") + 
+labs(x = "Category", y = "Annual Salary") + 
 theme(plot.title = element_text(hjust = 0.5)) +
   coord_flip()
 ```
-
+This boxplot gives us a general idea of the salary distribution for different kinds of jobs from the highest salary to lowest mean salary. For instance, we can see that jobs of Building Operations & Maintenance, in general, have lower salaries than those of Information Technology & Telecommunications.We also can have a general idea that the higher the Annual Salary the wider the range of the Salary. We will explore more on the topic latter.
 
 
 ### 5.3 Word Clouds for Text Information
 
-Meanwhile, we also want to study the minimum qualification requirements and preferred skills for the available jobs in NYC. We want to find if there are any patterns in these two columns and if we can extract any useful information from them. In order to illustrate our findings graphfically, we decide to use Word Clouds to show the most frequent words in these texts.
+Meanwhile, we also want to study the minimum qualification requirements and preferred skills for available jobs in NYC. We want to find if there are any patterns in these two columns and if we can extract any useful information from them. To illustrate our findings graphically, we decide to use Word Clouds to show the most frequent words in these texts.
 
-So what is Word Clouds? Word Clouds is visual representations of text data. They are useful for quickly perceiving the most prominent terms, which makes them widely used in media and well understood by the public. A Word Cloud is a collection of words depicted in different sizes. The bigger and bolder the word appears, the greater frequency within a given text and the more important it is.
+So what is Word Clouds? Word Clouds is a visual representation of text data. They are useful for quickly perceiving the most prominent terms, which makes them widely used in media and well understood by the public. A Word Cloud is a collection of words depicted in different sizes. The bigger and bolder the word appears, the greater the frequency within a given text and the more important it is.
 
-In order to extract meaningful vocabularies from the text descriptions, we take advantage of the text mining package `tm` in R. This package is based on the ideas of Natural Language Processing (NLP). It have methods that can tranform all words to lowercases, remove words that are uninformative in Enlighs such as "a" and "the", and get rid of whitespaces and punctuations.
+To extract meaningful vocabularies from the text descriptions, we take advantage of the text mining package `tm` in R. This package is based on the ideas of Natural Language Processing (NLP). It has methods that can transform all words to lowercase, remove words that are uninformative in Enlight such as "a" and "the", and get rid of whitespaces and punctuations.
 
 After these manipulations on the text data, we can create a new data frame of word frequencies. We can also sort it by frequency and find out the most frequent words under minimum qualification requirements and preferred skills for all jobs or for any particular category of jobs that we are interested in.
 
@@ -350,28 +359,56 @@ Finally, in general, we find that minimum requirements of all jobs and tech jobs
 ## 5.4 Tech Jobs Postings Trends
 
 ```{r}
-tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
+tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]%>%
+  mutate(Full.Time.Part.Time.indicator = as.character(Full.Time.Part.Time.indicator))%>%
+  mutate(Full.Time.Part.Time.indicator = if_else(is.na(Full.Time.Part.Time.indicator), "Dosen't mention", Full.Time.Part.Time.indicator))
 
 tech_job %>%
-  filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
+  #filter(!is.na(Full.Time.Part.Time.indicator)) %>%
+  #mutate_at(Full.Time.Part.Time.indicator, ~replace(., is.na(.),"Dosn't mention" ))
+  group_by(Full.Time.Part.Time.indicator)%>%
+  mutate(FTcount = n())%>%
+  mutate(FTportion = percent(FTcount/length(tech_job$Full.Time.Part.Time.indicator)))%>%
+  ungroup()%>%
   ggplot(aes(Full.Time.Part.Time.indicator)) + 
   geom_bar(color = "black", fill = "orange") +
   ggtitle("Number of Tech Job Postings w.r.t Full/Part Time") + 
+  scale_x_discrete(labels=c("F" = "Full Time", "P" = "Part Time"))+
   labs(x = "Full/Part Time", y = "Count") +
+  geom_text(
+    aes(label = FTportion, y =FTcount/2),
+    position = position_dodge(0.9),
+    vjust = 0
+  )+
   theme(plot.title = element_text(hjust = 0.5))
 
 ```
-
+From the above plot we can see 79% of the posted job in Technology category are Full time job. Only 5% of the job are part time job. Rest of the posting didn't mention they are part time or full time job.
 
 ```{r}
+
+tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]%>%
+  mutate(Salary.Frequency = as.character(Salary.Frequency))%>%
+  mutate(Salary.Frequency = if_else(is.na(Salary.Frequency), "Daily", Salary.Frequency))
+  
 tech_job %>%
-  filter(!is.na(tech_job$Salary.Frequency)) %>%
+  #filter(!is.na(tech_job$Salary.Frequency)) %>%
+  group_by(Salary.Frequency)%>%
+  mutate(Scount = n())%>%
+  mutate(Sportion = percent(Scount/length(tech_job$Salary.Frequency)))%>%
   ggplot(aes(Salary.Frequency)) + 
   geom_bar(color = "black", fill = "orange") +
   ggtitle("Number of Tech Job Postings w.r.t Salary Frequency") + 
   labs(x = "Salary Frequency", y = "Count") +
+  geom_text(
+    aes(label = Sportion, y =Scount/2),
+    position = position_dodge(0.9),
+    vjust = 0
+  )+
   theme(plot.title = element_text(hjust = 0.5))
+
 ```
+From the above plot we can see 94% of the posted job in Technology category posting Anuual salat. Only 5% of the job posting Hourly salary. Rest of the posting Posting Daily salary.
 
 ```{r}
 tech_job %>%
@@ -383,6 +420,8 @@ tech_job %>%
   geom_bar(color = "black", fill = "orange") +
   coord_flip()
 ```
+To take a closer view, we looked into the Job Count w.r.t Civil Service Title. From the polt above, we can see in the category of Technology, Computer system manager is the most frequent title.It was posted more than 50 times in our dataset. It is almost the double count of the second one: Computer specialist(software). The fewest title is supervising computer service. It only was posted 2 times in our dataset.
+
 
 ```{r}
 tech_job %>%
@@ -394,20 +433,21 @@ tech_job %>%
   geom_bar(stat = 'count',color = "black", fill = "orange") +
   coord_flip()
 ```
+we looked at  the Job Count w.r.t Location. From the plot above, we can see in the category of Technology, most of the jobs are in 255 greenwich street, 2 metro tech and 355 adam street. From a map we can see the first 10 locations are clustered. We can tell the technology jobs are very location sensitive. If you are willing to relocate, you can have more opportunities.  The location have fewest job posting is 109 E 16th st, 11 metrotech center , 356 flushing ave and 9 metrotech center.
+Later we have a interactive map, so we can have more insight on location.
 
 ```{r}
 tech_job %>%
   filter(!is.na(tech_job$Civil.Service.Title)) %>%
   group_by(Civil.Service.Title) %>%
   summarise(mean_salary = mean(Annual_salary)) %>%
-  ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
+  ggplot(aes(y = reorder(Civil.Service.Title, mean_salary), x = mean_salary)) +
   ggtitle("Average Annual Salary w.r.t Civil Service Title") +
   labs(x = "Civil Service Title", y = "Average Annual Salary") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
-  geom_col(color = "black", fill = "orange") + 
-  coord_flip()
+  geom_point(color = "orange")
 ```
-
+Th pot above shows the annual salary for different cicil title. The annual salary range form $ 40000 to $120000. The highest one is administrative business promot with arround $11500 annual salary and the lowest is college aid with 40000 annual salary.
 
 
 ## VI. Interactive component
@@ -427,6 +467,104 @@ tech_job %>%
 
 #write_csv(job, 'job_with_lat_long.csv')
 ```
+
+```{r}
+# library(leaflet)
+# job = read_csv('data/clean/job_with_lat_long.csv')%>%
+#   filter(!is.na(latitude)) %>%
+#   filter(longitude < -74.0060 + 1) %>%
+#   filter(longitude > -74.0060 - 1) %>%
+#   filter(latitude < 40.7128 + 0.8) %>%
+#   filter(latitude > 40.7128 - 0.8)
+# 
+# job$Full.Time.Part.Time.indicator[job$Full.Time.Part.Time.indicator == 'F'] = 'Full time'
+# 
+# job$Full.Time.Part.Time.indicator[job$Full.Time.Part.Time.indicator == 'P'] = 'Part time'
+# 
+# job = job %>%
+#   select(-'Job.Category')
+# df_popular_test = df_popular[,-3]
+# 
+# job = unique(merge(df_popular_test, job, by = 'Job.ID')) %>%
+#   rename(Category = Job.Category)
+# 
+# high_salary_geocodes = job %>%
+#   filter(Annual_salary > mean(Annual_salary))
+# low_salary_geocodes = job %>%
+#   filter(Annual_salary < mean(Annual_salary))
+# 
+# #add custom color column
+# high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
+# low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
+# 
+# job = rbind(high_salary_geocodes, low_salary_geocodes) %>%
+#   filter(!is.na(Annual_salary))
+# 
+# ui <- bootstrapPage(
+#   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
+#   leafletOutput("map", width = "100%", height = "100%"),
+#   absolutePanel(top = 10, left = 50,
+#                 selectInput(inputId = "Full_part_time","Choose full time or part time:",
+#                             c("All", "Full time", "Part time")
+#                 ),
+#                 selectInput(inputId = "chosen_cate","Choose the category that you want:",
+#                             c("All", job$Category)
+#                 ),
+#                 selectInput(inputId = "chosen_agency","Choose the agency that you want:",
+#                             c("All", job$Agency)
+#                 ),
+#                 sliderInput("Annual_salary", "Slide bar to choose the range of salary:", 
+#                             20000, 220000,
+#                             value = range(20000:220000), step = 10000
+#                 )
+#   )
+# )
+# 
+# server <- function(input, output, session) {
+#   
+#   # Reactive expression for the data subsetted to what the user selected
+#   
+#   filteredData <- reactive({
+#     temp <- job
+#     if(input$Full_part_time !='All'){
+#       temp <- temp[temp$Full.Time.Part.Time.indicator == input$Full_part_time, ]
+#     }
+#     if (input$chosen_cate !='All') {
+#       temp <- temp[temp$Category == input$chosen_cate, ]
+#     }
+#     if (input$chosen_agency !='All') {
+#       temp <- temp[temp$Agency == input$chosen_agency, ]
+#     }
+#     temp[temp$Annual_salary >= input$Annual_salary[1] & temp$Annual_salary <= input$Annual_salary[2], ]
+#   })
+#   
+#   output$map <- renderLeaflet({
+#     leaflet() %>% setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
+#       addTiles() %>% 
+#       addCircleMarkers(data = filteredData(),  
+#                        lng = ~longitude, 
+#                        lat = ~latitude, 
+#                        radius = 3, 
+#                        color = ~color,
+#                        popup = ~paste("<strong>Angency</strong>", Agency,
+#                                   "<br /><strong>Job Title:</strong>", Business.Title,
+#                                   "<br /><strong>Annual Salary:</strong>","$",Annual_salary,
+#                                   "<br /><strong>Category:</strong>",Category))%>%
+#   addLegend("bottomright", 
+#             colors = c('red', 'blue'), 
+#             labels = c('High salary', 'Low salary'),
+#             title = "Salary",
+#     opacity = 1
+#   )
+#   })
+# }
+# 
+# shinyApp(ui, server,options=list(height=530))
+# 
+
+
+```
+
 
 
 
@@ -537,6 +675,7 @@ Here we need to clarify that the "salary" means the average of each job salary a
 To make sure each job salary can be paired in the same unit, we convert all the salaries originally to annual salary, extract the columns we may need, and remove the duplications.
 
 ```{r}
+
 #converting salary on hourly scale anddaily scale to yearly scale
 #no of working days in US in a year: 261 source: 
 #no of working hours in US in a day: 8.4 hours 
@@ -576,7 +715,6 @@ extractdf <- unique(extractdf)
 
 ```
 
-Make sure each column in the property data type.
 ```{r}
 #Make sure each column in the property data type.
 extractdf$id <- as.integer(as.character(extractdf$id))
@@ -602,6 +740,7 @@ ggplot(mydf1, aes(x=AnnualSalaryMean, y=AnnualSalaryRange, color=type)) + geom_p
 
 <p>  Overall, the distributions of two types of job, full-time and part-time, are not have a huge differences, but the amount of part-time jobs are greatly less than full-time jobs.  Most of jobs with the salary lower than 150k/yr and the range of these jobs' salaries are less than 50k.  When the salary range over 50k, there is an obvious positive relationship between these two.  
 
+
 ```{r eval=FALSE, include=FALSE}
 p <-nPlot(AnnualSalaryRange~AnnualSalaryMean,group='type',data=mydf1, type='scatterChart') 
 p$yAxis(axisLabel = "Annual Salary Range")
@@ -611,6 +750,7 @@ p$chart(color = c("blue","yellow"))
 
 p
 ```
+<p> Though most of part time jobs take salary hourly or daily instead of yearly, when all of them convert to annual salary, they did not have obvious difference.  Therefore, we will put them together to check in the next plot.
 
 <p> The higher salary we have, the larger salary range will have.  Moreover, the variance of salary range is increasing with the increasing of the salary income.  Noticed that there are many jobs only provided a fixed number of salary so their ranges are zero.  Most of salary range is less than 40000 dollars, and most salary mean are gathered between 20000 to 100000 dollars.  When the salary range is between 80000 to 140000 dollars, there is an obvious positive raltionship between salary mean and its range.  
 
@@ -636,6 +776,7 @@ top_popular_cate = head(cate_freq_mean,30)
 
 ```{r eval=FALSE, include=FALSE}
 hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on top 30 popular job categories',subtitle = "(categories can be filtered by click the legend)")
+
 ```
 
 [click here to open the plot](data/bubbleplot1.html)
@@ -778,3 +919,4 @@ shinyApp(ui, server,options=list(height=530))
 
 
 ```
+
