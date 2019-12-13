@@ -158,6 +158,48 @@ temp = Hourly %>%
 
 Then, We also look into our data and find out more information about our salary distribution. For insace, for houly paied jobs, Stationary Engineer and City Medical Specialist have extremly high hourly salaries, while College Aide has low hourly salaries.
 
+```{r}
+#converting salary on hourly scale anddaily scale to yearly scale
+#no of working days in US in a year: 261 source: 
+#no of working hours in US in a day: 8.4 hours 
+job <- job %>% mutate(Annual_salary = if_else( Salary.Frequency == "Annual", round((Salary.Range.From + Salary.Range.To)/2,2),
+                                 if_else(Salary.Frequency == "Daily", round((Salary.Range.From + Salary.Range.To)*261/2,2),
+                                         round((Salary.Range.From + Salary.Range.To)*261*8.4/2,2))
+                                 )
+                               )
+
+##make the list of category of each job id as a single observations 
+df<-unnest(categoryList, cols = c(Job.Category))%>%
+  mutate(Job.Category = trimws(Job.Category,"both"))%>%
+  filter(Job.Category!="")
+
+df_all<-left_join(df, job, by = "Job.ID")
+
+df_popular<-df%>%
+  filter(Job.Category %in% popular_category$Category)%>%
+  merge(.,job[c("Job.ID","Annual_salary","Posting.Date")], by = "Job.ID")%>%
+  unique()%>%
+  mutate(month = lubridate::month(mdy(Posting.Date)))%>%
+  group_by(Job.Category,month)%>%
+  mutate(count = n())
+```
+```{r}
+ggplot(df_popular, aes(x=month,y=Job.Category,fill=Job.Category))+
+  geom_density_ridges(scale = 3, show.legend = FALSE) + theme_ridges()+
+  labs(x="month",y="count")+
+  ggtitle("The counts of insects treated with different insecticides.")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r}
+## all job posting with only category, anuual salary and job id
+ggplot(df_popular,aes(x = reorder(Job.Category,Annual_salary,FUN=mean), y = Annual_salary)) +
+geom_boxplot(color = "black", fill = "orange") +
+ggtitle("Distribution of Salaries w.r.t Different Categories") + 
+labs(x = "Category", y = "Anual Salary") + 
+theme(plot.title = element_text(hjust = 0.5)) +
+  coord_flip()
+```
+
 
 ### 5.3 Word Clouds for Text Information
 
@@ -304,61 +346,66 @@ Finally, in general, we find that minimum requirements of all jobs and tech jobs
 
 
 ## 5.4 Tech Jobs Postings Trends
+
 ```{r}
 tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
 
 tech_job %>%
   filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
-  ggplot(aes(Full.Time.Part.Time.indicator)) + 
+  ggplot(aes(Full.Time.Part.Time.indicator)) +
   geom_bar(fill = 'lightblue') +
   ggtitle("Number of Tech Job Postings w.r.t Full/Part Time") + 
   labs(x = "Full/Part Time", y = "Count") +
   theme(plot.title = element_text(hjust = 0.5))
-```
 
+```
 
 ```{r}
 tech_job %>%
   filter(!is.na(tech_job$Salary.Frequency)) %>%
   ggplot(aes(Salary.Frequency)) + 
   geom_bar(fill = 'lightblue') +
-  labs(x = "Salary frequency") + 
+  labs(x = "Salary frequency") +
   ggtitle("Number of Tech Job Postings w.r.t Salary Frequency") + 
   labs(x = "Salary Frequency", y = "Count") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
-
 
 ```{r}
 tech_job %>%
   filter(!is.na(tech_job$Civil.Service.Title)) %>%
   ggplot(aes(fct_rev(fct_infreq(Civil.Service.Title)))) + 
   geom_bar(fill = 'lightblue') +
-  labs(x = "Civil service title") + 
+  ggtitle("Job Count w.r.t Civil Service Title") +
+  labs(x = "Civil Service Title", y = "Count") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
   coord_flip()
 ```
-
 
 ```{r}
 tech_job %>%
   filter(!is.na(tech_job$Work.Location)) %>%
   ggplot(aes(fct_rev(fct_infreq(Work.Location)))) + 
-  geom_bar(stat = 'count', fill = 'lightblue') +
-  labs(x = "Work location") + 
+  geom_bar(fill = 'lightblue') +
+  ggtitle("Job Count w.r.t Work Location") +
+  labs(x = "Work Location", y = "Count") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
   coord_flip()
 ```
-
 
 ```{r}
 tech_job %>%
+  filter(!is.na(tech_job$Civil.Service.Title)) %>%
   group_by(Civil.Service.Title) %>%
-  summarise(mean_salary = mean(salary)) %>%
+  summarise(mean_salary = mean(Annual_salary)) %>%
   ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
   geom_col(fill = 'lightblue') + 
-  labs(x = 'Civil service title', 
-       y = 'Average annual salary') + 
+  ggtitle("Average Annual Salary w.r.t Civil Service Title") +
+  labs(x = "Civil Service Title", y = "Average Annual Salary") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
   coord_flip()
 ```
+
 
 
 ## VI. Interactive component
@@ -379,6 +426,8 @@ tech_job %>%
 #write_csv(job, 'job_with_lat_long.csv')
 ```
 
+
+
 ## VII. Conclusion
 
 ### 2.2 Short Summary of Initial Investigations
@@ -389,56 +438,7 @@ From those three plots above, we can have the following obeservations:
 3. For salaries calculated daily, there is no specific pattern regarding the distribution. Some jobs have relatively low daily salaries, while others have much higher salaries.
 4. For salaries calculated hourly, most of them has a relatively low value, but there are still some jobs have relatively high hourly salaries.
 
-```{r}
-#converting salary on hourly scale anddaily scale to yearly scale
-#no of working days in US in a year: 261 source: 
-#no of working hours in US in a day: 8.4 hours 
-job <- job %>% mutate(Annual_salary = if_else( Salary.Frequency == "Annual", round((Salary.Range.From + Salary.Range.To)/2,2),
-                                 if_else(Salary.Frequency == "Daily", round((Salary.Range.From + Salary.Range.To)*261/2,2),
-                                         round((Salary.Range.From + Salary.Range.To)*261*8.4/2,2))
-                                 )
-                               )
 
-##make the list of category of each job id as a single observations 
-df<-unnest(categoryList, cols = c(Job.Category))%>%
-  mutate(Job.Category = trimws(Job.Category,"both"))%>%
-  filter(Job.Category!="")
-
-
-mdy(job$Posting.Date)
-
-df_all<-left_join(df, job, by = "Job.ID")
-
-df_popular<-df%>%
-  filter(Job.Category %in% popular_category$Category)%>%
-  merge(.,job[c("Job.ID","Annual_salary","Posting.Date")], by = "Job.ID")%>%
-  unique()%>%
-  mutate(month = lubridate::month(mdy(Posting.Date)))%>%
-  group_by(Job.Category,month)%>%
-  mutate(count = n())
-
-ggplot(df_popular, aes(x=month,y=Job.Category,fill=Job.Category))+
-  geom_density_ridges(scale = 3, show.legend = FALSE) + theme_ridges()+
-  labs(x="month",y="count")+
-  ggtitle("The counts of insects treated with different insecticides.")+
-  theme(plot.title = element_text(hjust = 0.5))
-
-
-## all job posting with only category, anuual salary and job id
-
-
-
-ggplot(df_popular,aes(x = reorder(Job.Category,Annual_salary,FUN=mean), y = Annual_salary)) +
-geom_boxplot(color = "black", fill = "orange") +
-ggtitle("Distribution of Salaries w.r.t Different Categories") + 
-labs(x = "Category", y = "Anual Salary") + 
-theme(plot.title = element_text(hjust = 0.5)) +
-  coord_flip()
-
-
-
-
-```
 
 
 
@@ -447,23 +447,6 @@ This boxplot gives us a general idea of the salary distribution for different ki
 There are a lot of information in the job description and job requirements. Extracting the useful information from these features could be a challenging work.
 
 In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salary frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
-
-
-# 3. Analyzing part
-
-## 3.1 Word Cloud
-
-Word Frequency and WordCloud from here:
-```{r}
-#library(SnowballC)
-#library(wordcloud)
-#library(RColorBrewer)
-#set.seed(1234)
-#wordcloud(words = d$word, freq = d$freq, min.freq = 1,
-          #max.words=200, random.order=FALSE, rot.per=0.35, 
-          #colors=brewer.pal(8, "Dark2"))
-```
-
 
 ## 3.2 Explore the relationship between salary and its range
 
@@ -568,63 +551,7 @@ hPlot(Annual_salary_range~Annual_salary_mean,data = cate_freq_mean,type = 'bubbl
 
 ## 3.3 Technology job posting trends
 
-```{r}
-tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
 
-tech_job %>%
-  filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
-  ggplot(aes(Full.Time.Part.Time.indicator)) +
-  geom_bar(fill = 'lightblue') +
-  labs(x = "Full time and part time")
-
-```
-
-
-```{r}
-tech_job %>%
-  filter(!is.na(tech_job$Salary.Frequency)) %>%
-  ggplot(aes(Salary.Frequency)) + 
-  geom_bar(fill = 'lightblue') +
-  labs(x = "Salary frequency")
-```
-
-
-```{r}
-tech_job %>%
-  filter(!is.na(tech_job$Civil.Service.Title)) %>%
-  ggplot(aes(fct_rev(fct_infreq(Civil.Service.Title)))) + 
-  geom_bar(fill = 'lightblue') +
-  ggtitle("Job Count by Civil Service Title") +
-  labs(x = "Civil Service Title", y = "Count") + 
-  theme(plot.title = element_text(hjust = 0.5)) + 
-  coord_flip()
-```
-
-
-```{r}
-tech_job %>%
-  filter(!is.na(tech_job$Work.Location)) %>%
-  ggplot(aes(fct_rev(fct_infreq(Work.Location)))) + 
-  geom_bar(fill = 'lightblue') +
-  ggtitle("Job Count by Work Location") +
-  labs(x = "Work Location", y = "Count") + 
-  theme(plot.title = element_text(hjust = 0.5)) + 
-  coord_flip()
-```
-
-
-```{r}
-tech_job %>%
-  filter(!is.na(tech_job$Civil.Service.Title)) %>%
-  group_by(Civil.Service.Title) %>%
-  summarise(mean_salary = mean(Annual_salary)) %>%
-  ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
-  geom_col(fill = 'lightblue') + 
-  ggtitle("Job Count by Work Location") +
-  labs(x = "Civil Service Title", y = "Average Annual Salary") + 
-  theme(plot.title = element_text(hjust = 0.5)) + 
-  coord_flip()
-```
 
 As a result, for technology job postings in New York City:
   
@@ -635,42 +562,6 @@ As a result, for technology job postings in New York City:
   - Most wanted Civil Service is Computer Systems Manager.
   
   - Most jobs have over 60000 dollars average annual salary.
-  
-  
-
-
-# 4. Conclusion
-
-
-# 5. Future Works
-
-(If we are provided more time, what we want to do?)
-
-
-
-# 6. Requirements and References
-
-## 6.1 Reqirements
-
-### 6.1.1 File format
-(You don't have to use the same format for this assignment -- PSet 5, part A -- and the final project itself.)
-
-Choices are:
-
-pdf_document  
-
-html_document  
-
-bookdown book: https://bookdown.org/yihui/bookdown/
-
-shiny app: https://shiny.rstudio.com/  
-
-(Remember that it's ok to have pieces of the project that don't fit into the chosen output format; in those cases you can provide links to the relevant material.)
-
-    We decide to use the html_document as our output format.
-
-### 6.1.2 Instructions
-Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
 
 
 ### 6.2 References
@@ -764,4 +655,3 @@ shinyApp(ui, server,options=list(height=530))
 
 
 ```
-
