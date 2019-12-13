@@ -61,8 +61,8 @@ As mentioned above, we fill all empty slots in the original dataset with NAs.
 After drawing a heatmap to show the missing patterns using `mi::missing_data.frame()`, we receive a warning message saying that all values in column `Recruiment Contact` are NAs. Therefore, we simply drop this column from our data frame. For other columns, we will keep these NAs for now.
 
 ```{r}
-library(extracat)
-visna(job)
+# library(extracat)
+# visna(job)
 ```
 
 ```{r}
@@ -740,7 +740,8 @@ job = job %>%
   select(-'Job.Category')
 df_popular_test = df_popular[,-3]
 
-job = unique(merge(df_popular_test, job, by = 'Job.ID'))
+job = unique(merge(df_popular_test, job, by = 'Job.ID')) %>%
+  rename(Category = Job.Category)
 
 high_salary_geocodes = job %>%
   filter(Annual_salary > mean(Annual_salary))
@@ -762,11 +763,14 @@ ui <- bootstrapPage(
                             c("All", "Full time", "Part time")
                 ),
                 selectInput(inputId = "chosen_cate","Choose the category that you want:",
-                            c("All", popular_category$Category)
+                            c("All", job$Category)
+                ),
+                selectInput(inputId = "chosen_agency","Choose the agency that you want:",
+                            c("All", job$Agency)
                 ),
                 sliderInput("Annual_salary", "Slide bar to choose the range of salary:", 
-                            50000, 100000,
-                            value = range(50000:100000), step = 10000
+                            20000, 220000,
+                            value = range(20000:220000), step = 10000
                 )
   )
 )
@@ -781,7 +785,10 @@ server <- function(input, output, session) {
       temp <- temp[temp$Full.Time.Part.Time.indicator == input$Full_part_time, ]
     }
     if (input$chosen_cate !='All') {
-      temp <- temp[temp$Job.Category == input$chosen_cate, ]
+      temp <- temp[temp$Category == input$chosen_cate, ]
+    }
+    if (input$chosen_agency !='All') {
+      temp <- temp[temp$Agency == input$chosen_agency, ]
     }
     temp[temp$Annual_salary >= input$Annual_salary[1] & temp$Annual_salary <= input$Annual_salary[2], ]
   })
@@ -797,10 +804,10 @@ server <- function(input, output, session) {
                        popup = ~paste("<strong>Angency</strong>", Agency,
                                   "<br /><strong>Job Title:</strong>", Business.Title,
                                   "<br /><strong>Annual Salary:</strong>","$",Annual_salary,
-                                  "<br /><strong>Category:</strong>",Job.Category))%>%
+                                  "<br /><strong>Category:</strong>",Category))%>%
   addLegend("bottomright", 
             colors = c('red', 'blue'), 
-            labels = c('high_salary', 'low_salary'),
+            labels = c('High salary', 'Low salary'),
             title = "Salary",
     opacity = 1
   )
