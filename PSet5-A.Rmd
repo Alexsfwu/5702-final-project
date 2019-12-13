@@ -159,6 +159,7 @@ temp = Hourly %>%
 Then, We also look into our data and find out more information about our salary distribution. For insace, for houly paied jobs, Stationary Engineer and City Medical Specialist have extremly high hourly salaries, while College Aide has low hourly salaries.
 
 
+
 ### 5.3 Word Clouds for Text Information
 
 Meanwhile, we also want to study the minimum qualification requirements and preferred skills for the available jobs in NYC. We want to find if there are any patterns in these two columns and if we can extract any useful information from them. In order to illustrate our findings graphfically, we decide to use Word Clouds to show the most frequent words in these texts.
@@ -218,6 +219,9 @@ htmlTable(head(mini_freq, 20), caption="Minimum Qual Requirements in All Jobs Wo
 <!-- library("htmlwidgets") -->
 <!-- saveWidget(mini_freq_graph,"mini_freq_graph.html", selfcontained = F) -->
 <!-- ``` -->
+
+
+
 ```{r}
 library(wordcloud2)
 wordcloud2(data=mini_freq, color='random-light', backgroundColor='black', size=0.8)
@@ -398,7 +402,7 @@ To
     
     Mingrui will focus on the topic of salary vs. job category. Using different groups of job category to classify different levels of salaries may be something could be explored.
     
-### 1.2 The Problem Statement
+### 6.1. The Problem Statement
 
 List three questions that you hope you will be able to answer from your research.
 
@@ -412,8 +416,7 @@ List three questions that you hope you will be able to answer from your research
     
     d) The relationship between salary vs. salary range.
 
-
-### 2.2 Short Summary of Initial Investigations
+### 6.2. Short Summary of Initial Investigations
 
 From those three plots above, we can have the following obeservations:
 1. For most of the jobs, the salaries are given annually. Meanwhile, there are also some jobs which have hourly salaries. Only a few of those jobs have daily salaries.
@@ -478,28 +481,7 @@ There are a lot of information in the job description and job requirements. Extr
 In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salary frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
 
 
-# 3. Analyzing part
-
-<<<<<<< 
-
-
-
-=======
-## 3.1 Word Cloud
-
-Word Frequency and WordCloud from here:
-```{r}
-#library(SnowballC)
-#library(wordcloud)
-#library(RColorBrewer)
-#set.seed(1234)
-#wordcloud(words = d$word, freq = d$freq, min.freq = 1,
-          #max.words=200, random.order=FALSE, rot.per=0.35, 
-          #colors=brewer.pal(8, "Dark2"))
-```
-
-
-## 3.2 Explore the relationship between salary and its range
+### 3.Explore the relationship between salary and its range
 
 Noticed that the salaries may have huge differences when the differences of positions, in this section, we are trying to explore the relationship between salary and its ranges.
 
@@ -508,6 +490,21 @@ Here we need to clarify that the "salary" means the average of each job salary a
 To make sure each job salary can be paired in the same unit, we convert all the salaries originally to annual salary, extract the columns we may need, and remove the duplications.
 
 ```{r}
+#converting salary on hourly scale anddaily scale to yearly scale
+#no of working days in US in a year: 261 source: 
+#no of working hours in US in a day: 8.4 hours 
+job <- job %>% mutate(Annual_salary = if_else( Salary.Frequency == "Annual", round((Salary.Range.From + Salary.Range.To)/2,2),
+                                 if_else(Salary.Frequency == "Daily", round((Salary.Range.From + Salary.Range.To)*261/2,2),
+                                         round((Salary.Range.From + Salary.Range.To)*261*8.4/2,2))
+                                 )
+                               )
+
+##make the list of category of each job id as a single observations 
+df<-unnest(categoryList, cols = c(Job.Category))%>%
+  mutate(Job.Category = trimws(Job.Category,"both"))%>%
+  filter(Job.Category!="")
+
+
 job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", 
                                                     round(abs(Salary.Range.From -Salary.Range.To),2),
                                             if_else(Salary.Frequency == "Daily", 
@@ -534,7 +531,6 @@ extractdf <- unique(extractdf)
 
 Make sure each column in the property data type.
 ```{r}
-
 #Make sure each column in the property data type.
 extractdf$id <- as.integer(as.character(extractdf$id))
 extractdf$num_positions <- as.integer(as.character(extractdf$num_positions))
@@ -553,18 +549,13 @@ mydf1 <- na.omit(extractdf)
 ```
 
 ```{r}
-options(RCHART_WIDTH = 600, RCHART_HEIGHT = 400)
-rPlot(AnnualSalaryRange~AnnualSalaryMean | type, data = mydf1, color = 'type', type = 'point')
+ggplot(mydf1, aes(x=AnnualSalaryMean, y=AnnualSalaryRange, color=type)) + geom_point(shape=1)
 ```
-
 <p> The plot above shows the relation between salary range and mean of salary of each job position divided by two subplot based on the full-time job or part-time job.  
 
 <p>  Overall, the distributions of two types of job, full-time and part-time, are not have a huge differences, but the amount of part-time jobs are greatly less than full-time jobs.  Most of jobs with the salary lower than 150k/yr and the range of these jobs' salaries are less than 50k.  When the salary range over 50k, there is an obvious positive relationship between these two.  
 
-<p> Though most of part time jobs take salary hourly or daily instead of yearly, when all of them convert to annual salary, they did not have obvious difference.  Therefore, we will put them together to check in the next plot.
-
-
-```{r}
+```{r eval=FALSE, include=FALSE}
 p <-nPlot(AnnualSalaryRange~AnnualSalaryMean,group='type',data=mydf1, type='scatterChart') 
 p$yAxis(axisLabel = "Annual Salary Range")
 p$xAxis(axisLabel = "Annual salary Mean")
@@ -574,7 +565,7 @@ p$chart(color = c("blue","yellow"))
 p
 ```
 
-<p> From the interactive scatter plot above, in general, the higher salary we have, the larger salary range will have.  Moreover, the variance of salary range is increasing with the increasing of the salary income.  Noticed that there are many jobs only provided a fixed number of salary so their ranges are zero.  Most of salary range is less than 40000 dollars, and most salary mean are gathered between 20000 to 100000 dollars.  When the salary range is between 80000 to 140000 dollars, there is an obvious positive raltionship between salary mean and its range.  This is suitable for both part-time jobs or full-time jobs.
+<p> The higher salary we have, the larger salary range will have.  Moreover, the variance of salary range is increasing with the increasing of the salary income.  Noticed that there are many jobs only provided a fixed number of salary so their ranges are zero.  Most of salary range is less than 40000 dollars, and most salary mean are gathered between 20000 to 100000 dollars.  When the salary range is between 80000 to 140000 dollars, there is an obvious positive raltionship between salary mean and its range.  
 
 
 To figure out the mean of salary and its range based on different categories of jobs, we merge the job categories in our extracted table. 
@@ -591,24 +582,32 @@ cate_freq_mean$cate_sala_min <- NA
 for (i in 1:110){cate_freq_mean$cate_sala_min[i] <- min(mydf$AnnualSalaryMean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
 cate_freq_mean$Annual_salary_range <- cate_freq_mean$cate_sala_max - cate_freq_mean$cate_sala_min
 cate_freq_mean = cate_freq_mean[order(cate_freq_mean$Freq,decreasing = TRUE),]
+
+top_popular_cate = head(cate_freq_mean,30)
 ```
 
 
-```{r}
-top_popular_cate = head(cate_freq_mean,30)
+```{r eval=FALSE, include=FALSE}
 hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on top 30 popular job categories',subtitle = "(categories can be filtered by click the legend)")
 ```
+
+[click here to open the plot](data/bubbleplot1.html)
+
 
 <p> The bubble plot shows the top 30 popular job categories in the relation between annual salary and its range.  The top 30 popular job categories means the amount of job types published in the NY job website.  From the plot, we noticed that most of them have salary range between 100k to 200k and the annual salary mean crossed from 60k to 90k dollars.  The size of bubbles displaies the amount of a type of work that is published online.  In these job categories, most job categories that have annual salary over 80k are  technology related.
 
 
 <p> To see all the categories the following plot provided information:
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 hPlot(Annual_salary_range~Annual_salary_mean,data = cate_freq_mean,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on job categories',subtitle = "(categories can be filtered by click the legend)")
 ```
 
+[click here to open the plot](data/bubbleplot2.html)
+
 <p> The above plot shows all the categories.  In general, the salary range are wider compared with the top 30 categories.  Planning Maintenance and Producement Building Operations have a extremly high annual salary mean, they all over 150k dollars/year.  Human Resource Finance and Health Policy are also obviously distinguished with others since their annual are over 100k.  The next group of categories with the annual salay mean between 80k to 100k, they mostly related with technology, innovation, finance, and service.  The next group of categories with mean salary between 60k to 80k, their categories are similar with the group of 80k to 90k, but this group have the large size of needness.  For the salary group less than 60k, they also have low annual salary range, their sizes of needness online are also small.
+
+
 
 
 As a result, for technology job postings in New York City:
