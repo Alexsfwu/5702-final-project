@@ -151,10 +151,10 @@ ggplot(data = Hourly, aes(Hourly$salary)) +
 ```
 
 From these three plots above, we have the following obeservations: 
-* For most of the jobs, the salaries are given annually. There are also some jobs which have hourly salaries. Only a few of those jobs have daily salaries. 
-* For salaries calculated annually, it has approximately right-skewed normal distribution, which means that most jobs do not have a relatively high salaries.
-* For salaries calculated daily, there is no specific pattern regarding the distribution. Some jobs have relatively low daily salaries, while others have much higher salaries. 
-* For salaries calculated hourly, most of them has a relatively low value, but there are still some jobs have relatively high hourly salaries. 
+1. For most of the jobs, the salaries are given annually. There are also some jobs which have hourly salaries. Only a few of those jobs have daily salaries. 
+2. For salaries calculated annually, it has approximately right-skewed normal distribution, which means that most jobs do not have a relatively high salaries.
+3. For salaries calculated daily, there is no specific pattern regarding the distribution. Some jobs have relatively low daily salaries, while others have much higher salaries. 
+4. For salaries calculated hourly, most of them has a relatively low value, but there are still some jobs have relatively high hourly salaries. 
 
 ```{r}
 temp = Hourly %>% 
@@ -462,7 +462,7 @@ tech_job %>%
   geom_bar(stat = 'count',color = "black", fill = "orange") +
   coord_flip()
 ```
-we looked at  the Job Count w.r.t Location. From the plot above, we can see in the category of Technology, most of the jobs are in 255 greenwich street, 2 metro tech and 355 adam street. From a map we can see the first 10 locations are clustered. We can tell the technology jobs are very location sensitive. If you are willing to relocate, you can have more opportunities.  The location have fewest job posting is 109 E 16th st, 11 metrotech center , 356 flushing ave and 9 metrotech center.
+we looke at the Job Count w.r.t Location. From the plot above, we can see in the category of Technology, most of the jobs are in 255 greenwich street, 2 metro tech and 355 adam street. From a map we can see the first 10 locations are clustered. We can tell the technology jobs are very location sensitive. If you are willing to relocate, you can have more opportunities.  The location have fewest job posting is 109 E 16th st, 11 metrotech center , 356 flushing ave and 9 metrotech center.
 Later we have a interactive map, so we can have more insight on location.
 
 ```{r}
@@ -599,6 +599,19 @@ Th pot above shows the annual salary for different cicil title. The annual salar
 
 ## VII. Conclusion
 
+## Lessons Learned
+
+After completing this final project, we believe that we gained a better understanding of all the concepts that we have learned in this semester. Starting from researching online, we found this NYC Job Postings dataset and exported a `.csv` file for the use of our project. Then, leveraging the data processing skills we have learned, we cleaned up our data through properly dealing with NAs, removing duplicated elements that we did not need, and extracting more information such as locations by taking advantage of Google API. For the main part of project, we used many types of graphs we learnt in this semester, such as bar chart, box plot, histogram, Ridgeline plot, and Cleveland dot plot. We also took advantage of the knowledge learnt from the Community Contribution assignment and drew several Word Cloud graphs to showcase our skills in dealing with text data. Last but not least, for the interactive component, we utilized the Shiny app and created an interactive graph, from which users can check job salaries of the categories, agencies, or full/part time they select. Overall, we have learnt a lot through EDAV in this semester, and we really enjoy the process.
+
+## Summary of Studies on the Dataset
+
+Here is a breif summary of some findings we got for the dataset.
+
+When compared full-time jobs with part-time jobs, overall, the distributions of two types of job, are not have a huge differences, but the amount of part-time jobs are greatly less than full-time jobs. Most of jobs with the salary lower than 150k/yr and the range of these jobs' salaries are less than 50k. When the salary range over 50k, there is an obvious positive relationship between these two.
+
+Planning Maintenance and Producement Building Operations have a extremly high annual salary mean. Human Resource Finance and Health Policy are also obviously distinguished with others since their annual are over 100k. Most job categories with the salary between 60k to 80k dollars per year, the categories in this range are mostly related with technology, innovation, finance, and service. The most popular positions are all in this range, and the top 30 categories has the annual salary range between 100k to 200k dollars per year. For the salary group less than 60k, they also have low annual salary range, their sizes of needness online are also small.
+
+Detailed results can be found in the previous chapters.
 ### 2.2 Short Summary of Initial Investigations
 
 From those three plots above, we can have the following obeservations:
@@ -649,20 +662,6 @@ There are a lot of information in the job description and job requirements. Extr
 
 In conclusion, these are all we have done right now. We identify the number of job postings with respect to different job categories. We also check the salaries of jobs with different salary frequency. Last but not least, we also inspect the salary range for different categories by drawing a boxplot. I think we are off a great start, and we will continue our analysis on the dataset from here.
 
-# 3. Analyzing part
-
-## 3.1 Word Cloud
-
-Word Frequency and WordCloud from here:
-```{r}
-#library(SnowballC)
-#library(wordcloud)
-#library(RColorBrewer)
-#set.seed(1234)
-#wordcloud(words = d$word, freq = d$freq, min.freq = 1,
-          #max.words=200, random.order=FALSE, rot.per=0.35, 
-          #colors=brewer.pal(8, "Dark2"))
-```
 
 ## 3.2 Explore the relationship between salary and its range
 
@@ -754,22 +753,3 @@ To figure out the mean of salary and its range based on different categories of 
 ```
 
 <p> The above plot shows all the categories.  In general, the salary range are wider compared with the top 30 categories.  Planning Maintenance and Producement Building Operations have a extremly high annual salary mean, they all over 150k dollars/year.  Human Resource Finance and Health Policy are also obviously distinguished with others since their annual are over 100k.  The next group of categories with the annual salay mean between 80k to 100k, they mostly related with technology, innovation, finance, and service.  The next group of categories with mean salary between 60k to 80k, their categories are similar with the group of 80k to 90k, but this group have the large size of needness.  For the salary group less than 60k, they also have low annual salary range, their sizes of needness online are also small.
-
-
-
-## 3.3 Technology job posting trends
-
-As a result, for technology job postings in New York City:
-  
-  - Full time jobs more than part time jobs.
-  
-  - Popular Location is Brooklyn.
-  
-  - Most wanted Civil Service is Computer Systems Manager.
-  
-  - Most jobs have over 60000 dollars average annual salary.
-
-
-### 6.2 References
-
-\
