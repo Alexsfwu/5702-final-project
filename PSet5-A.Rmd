@@ -46,13 +46,10 @@ library(shiny)
 ```
 
 ```{r}
-job <- read.csv("data/raw/NYC_jobs.csv") # Read data from csv file
+job <- read.csv("data/raw/NYC_Jobs.csv") # Read data from csv file
 job[job == ''] <- NA # Set empty slots as NAs
 
-# Remove duplicate jobs 
 job <-job[!duplicated(job), ]
-
-# dim(job) # Check the dimension of the data frame
 ```
 
 
@@ -75,7 +72,6 @@ job = job %>%
 ```
 
 ## V. Results
-This part is mainly contributed by Mingrui.
 ```{r}
 categoryList <- job %>%
   filter(!is.na(Job.Category))%>%
@@ -116,7 +112,7 @@ ggplot(Annual, aes(salary)) +
 ```{r}
 Daily = job[job$Salary.Frequency=="Daily",]
 ggplot(data = Daily, aes(Daily$salary)) +
-  geom_histogram(bins = 40, color = "black", fill = "orange") +
+  geom_histogram(bins = 20, color = "black", fill = "orange") +
   ggtitle("Salary Distribution (Daily)") + 
   labs(x = "Salary Range", y = "Count") + 
   theme(plot.title = element_text(hjust = 0.5))
@@ -177,8 +173,11 @@ mini_req_matrix <- TermDocumentMatrix(job_mini_req)
 mini_freq_m <- as.matrix(mini_req_matrix)
 mini_freq_v <- sort(rowSums(mini_freq_m), decreasing=TRUE)
 mini_freq <- data.frame(word = names(mini_freq_v), freq=mini_freq_v)
-# head(mini_freq, 20)
-htmlTable(head(mini_freq, 20), caption="Minimum Qual Requirements in All Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
+# 
+(mini_freq, 20)
+htmlTable(
+  (mini_freq, 20), caption="Minimum Qual Requirements in All Jobs Word Frequency", 
+          er=c("Word", "Frequency"), rnames=FALSE)
 ```
 <!-- ```{r} -->
 <!-- library(wordcloud2) -->
@@ -214,8 +213,11 @@ pref_freq_m <- as.matrix(pref_skil_matrix)
 pref_freq_v <- sort(rowSums(pref_freq_m), decreasing=TRUE)
 pref_freq <- data.frame(word = names(pref_freq_v), freq=pref_freq_v)
 pref_freq <- pref_freq[-1,]
-# head(pref_freq, 20)
-htmlTable(head(pref_freq, 20), caption="Preferred Skills in All Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
+# 
+(pref_freq, 20)
+htmlTable(
+  (pref_freq, 20), caption="Preferred Skills in All Jobs Word Frequency", 
+          er=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
 library(wordcloud2)
@@ -243,8 +245,11 @@ tech_mini_matrix <- TermDocumentMatrix(job_tech_mini_req)
 tech_mini_freq_m <- as.matrix(tech_mini_matrix)
 tech_mini_freq_v <- sort(rowSums(tech_mini_freq_m), decreasing=TRUE)
 tech_mini_freq <- data.frame(word = names(tech_mini_freq_v), freq=tech_mini_freq_v)
-# head(tech_mini_freq, 20)
-htmlTable(head(tech_mini_freq, 20), caption="Minimum Qual Requirements in Technology Related Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
+# 
+(tech_mini_freq, 20)
+htmlTable(
+  (tech_mini_freq, 20), caption="Minimum Qual Requirements in Technology Related Jobs Word Frequency", 
+          er=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
 library(wordcloud2)
@@ -272,8 +277,11 @@ tech_pref_freq_m <- as.matrix(tech_pref_matrix)
 tech_pref_freq_v <- sort(rowSums(tech_pref_freq_m), decreasing=TRUE)
 tech_pref_freq <- data.frame(word = names(tech_pref_freq_v), freq=tech_pref_freq_v)
 tech_pref_freq <- tech_pref_freq[-1,]
-# head(tech_pref_freq, 20)
-htmlTable(head(tech_pref_freq, 20), caption="Preferred Skills in Technology Related Jobs Word Frequency", header=c("Word", "Frequency"), rnames=FALSE)
+# 
+(tech_pref_freq, 20)
+htmlTable(
+  (tech_pref_freq, 20), caption="Preferred Skills in Technology Related Jobs Word Frequency", 
+          er=c("Word", "Frequency"), rnames=FALSE)
 ```
 ```{r}
 library(wordcloud2)
@@ -294,7 +302,7 @@ tech_job = job[job$Job.Category == 'Technology, Data & Innovation', ]
 tech_job %>%
   filter(!is.na(tech_job$Full.Time.Part.Time.indicator)) %>%
   ggplot(aes(Full.Time.Part.Time.indicator)) + 
-  geom_bar(fill = 'lightblue') +
+  geom_bar(color = "black", fill = "orange") +
   labs(x = "Full time and part time")
 ```
 
@@ -303,7 +311,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Salary.Frequency)) %>%
   ggplot(aes(Salary.Frequency)) + 
-  geom_bar(fill = 'lightblue') +
+  geom_bar(color = "black", fill = "orange") +
   labs(x = "Salary frequency")
 ```
 
@@ -312,7 +320,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Civil.Service.Title)) %>%
   ggplot(aes(fct_rev(fct_infreq(Civil.Service.Title)))) + 
-  geom_bar(fill = 'lightblue') +
+  geom_bar(color = "black", fill = "orange") +
   labs(x = "Civil service title") + 
   coord_flip()
 ```
@@ -322,7 +330,7 @@ tech_job %>%
 tech_job %>%
   filter(!is.na(tech_job$Work.Location)) %>%
   ggplot(aes(fct_rev(fct_infreq(Work.Location)))) + 
-  geom_bar(stat = 'count', fill = 'lightblue') +
+  geom_bar(stat = 'count',color = "black", fill = "orange") +
   labs(x = "Work location") + 
   coord_flip()
 ```
@@ -333,7 +341,7 @@ tech_job %>%
   group_by(Civil.Service.Title) %>%
   summarise(mean_salary = mean(salary)) %>%
   ggplot(aes(x = reorder(Civil.Service.Title, mean_salary), y = mean_salary)) +
-  geom_col(fill = 'lightblue') + 
+  geom_col(color = "black", fill = "orange") + 
   labs(x = 'Civil service title', 
        y = 'Average annual salary') + 
   coord_flip()
@@ -362,51 +370,50 @@ tech_job %>%
 
 
 ```{r}
-library(leaflet)
-job_with_location = read_csv('job_with_lat_long.csv')%>%
-  filter(!is.na(latitude))%>%
-  filter(longitude < -74.0060 + 1) %>%
-  filter(longitude > -74.0060 - 1) %>%
-  filter(latitude < 40.7128 + 0.8) %>%
-   filter(latitude > 40.7128 - 0.8)
-  
-#removing values for which there were no coordinates
-high_salary_geocodes = job_with_location%>%
-  filter(Annual_salary>mean(Annual_salary))
-low_salary_geocodes = job_with_location%>%
-  filter(Annual_salary<mean(Annual_salary))
-
-#add custom color column
-high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
-low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
-
-salary_geocodes = rbind(high_salary_geocodes, low_salary_geocodes)
-
-main_salary<-salary_geocodes%>%
-    filter(Annual_salary >  quantile(salary_geocodes$Annual_salary,0.05))%>%
-    filter(Annual_salary < quantile(salary_geocodes$Annual_salary,0.95))
-
-main_salary<-main_salary[order(main_salary$Annual_salary),]
-
-main_salary %>% 
-  leaflet() %>% 
-  setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
-  addTiles() %>% 
-  addCircleMarkers(lng = ~longitude, 
-                   lat = ~latitude, 
-                   radius = 3, 
-                   color = ~color, 
-                   popup = ~paste("<strong>Angency</strong>", salary_geocodes$Agency,
-                                  "<br /><strong>Job Title:</strong>", salary_geocodes$Business.Title,
-                                  "<br /><strong>Annual Salary:</strong>","$",main_salary$Annual_salary,
-                                  "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))%>%
-  addLegend("bottomright", 
-            colors = c('red', 'blue'), 
-            labels = c('high_salary', 'low_salary'),
-            title = "Salary",
-    opacity = 1
-  )
-
+# library(leaflet)
+# job_with_location = read_csv('job_with_lat_long.csv')%>%
+#   filter(!is.na(latitude))%>%
+#   filter(longitude < -74.0060 + 1) %>%
+#   filter(longitude > -74.0060 - 1) %>%
+#   filter(latitude < 40.7128 + 0.8) %>%
+#    filter(latitude > 40.7128 - 0.8)
+#   
+# #removing values for which there were no coordinates
+# high_salary_geocodes = job_with_location%>%
+#   filter(Annual_salary>mean(Annual_salary))
+# low_salary_geocodes = job_with_location%>%
+#   filter(Annual_salary<mean(Annual_salary))
+# 
+# #add custom color column
+# high_salary_geocodes$color = rep('red', nrow(high_salary_geocodes))
+# low_salary_geocodes$color = rep('blue', nrow(low_salary_geocodes))
+# 
+# salary_geocodes = rbind(high_salary_geocodes, low_salary_geocodes)
+# 
+# main_salary<-salary_geocodes%>%
+#     filter(Annual_salary >  quantile(salary_geocodes$Annual_salary,0.05))%>%
+#     filter(Annual_salary < quantile(salary_geocodes$Annual_salary,0.95))
+# 
+# main_salary<-main_salary[order(main_salary$Annual_salary),]
+# 
+# main_salary %>% 
+#   leaflet() %>% 
+#   setView(lat = 40.7128, lng = -74.0060, zoom = 11) %>%
+#   addTiles() %>% 
+#   addCircleMarkers(lng = ~longitude, 
+#                    lat = ~latitude, 
+#                    radius = 3, 
+#                    color = ~color, 
+#                    popup = ~paste("<strong>Angency</strong>", salary_geocodes$Agency,
+#                                   "<br /><strong>Job Title:</strong>", salary_geocodes$Business.Title,
+#                                   "<br /><strong>Annual Salary:</strong>","$",main_salary$Annual_salary,
+#                                   "<br /><strong>Category:</strong>",salary_geocodes$Job.Category))%>%
+#   addLegend("bottomright", 
+#             colors = c('red', 'blue'), 
+#             labels = c('high_salary', 'low_salary'),
+#             title = "Salary",
+#     opacity = 1
+#   )
 
 ```
 
@@ -489,7 +496,6 @@ theme(plot.title = element_text(hjust = 0.5)) +
 
 
 
-
 ```
 
 
@@ -503,6 +509,133 @@ In conclusion, these are all we have done right now. We identify the number of j
 
 # 3. Analyzing part
 
+<<<<<<< 
+
+
+
+=======
+## 3.1 Word Cloud
+
+Word Frequency and WordCloud from here:
+```{r}
+#library(SnowballC)
+#library(wordcloud)
+#library(RColorBrewer)
+#set.seed(1234)
+#wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          #max.words=200, random.order=FALSE, rot.per=0.35, 
+          #colors=brewer.pal(8, "Dark2"))
+```
+
+
+## 3.2(Song's title, not decided yet)
+
+```{r}
+job <- job %>% mutate(Annual_salary_range = if_else( Salary.Frequency == "Annual", 
+                                                    round(abs(Salary.Range.From -Salary.Range.To),2),
+                                            if_else(Salary.Frequency == "Daily", 
+                                                    round(abs(Salary.Range.From -Salary.Range.To)*261,2),
+                                                round(abs(Salary.Range.From - Salary.Range.To)*261*8.4,2))
+                      ) 
+            ) 
+```
+
+
+```{r}
+
+summary(job$Annual_salary_range)
+```
+
+
+```{r}
+extractdf <- data.frame("id" = job$Job.ID, 
+                        "agency" = job$Agency,
+                        "posting_type" = job$Posting.Type,
+                       "type" = job$Full.Time.Part.Time.indicator,
+                       "num_positions" = job$X..Of.Positions,
+                       "salary_annual_mean" = job$Annual_salary,
+                       "salaray_annual_range" = job$Annual_salary_range)
+```
+Lookes like we have duplication in the table.  Delete these duplications.
+```{r}
+sum(duplicated(extractdf))
+extractdf <- unique(extractdf) 
+```
+
+Make sure each column in the property data type.
+```{r}
+extractdf$id <- as.integer(as.character(extractdf$id))
+extractdf$num_positions <- as.integer(as.character(extractdf$num_positions))
+extractdf$salary_annual_mean <- as.numeric(as.character(extractdf$salary_annual_mean))
+extractdf$salaray_annual_range <- as.numeric(as.character(extractdf$salaray_annual_range))
+```
+
+```{r}
+library(devtools)
+devtools::install_github('madlogos/recharts')
+library(recharts)
+library(rCharts)
+```
+
+```{r}
+mydf1 <- na.omit(extractdf)
+
+```
+
+```{r}
+options(RCHART_WIDTH = 700, RCHART_HEIGHT = 500)
+rPlot(salaray_annual_range~salary_annual_mean | type, data = mydf1, color = 'type', type = 'point')
+```
+
+```{r}
+p <-nPlot(salaray_annual_range~salary_annual_mean,group='type',data=mydf1, type='scatterChart') 
+p$yAxis(axisLabel = "Annual salary range")
+p$xAxis(axisLabel = "Annual salary mean")
+p$chart(showDistX = TRUE, showDistY = TRUE)
+p$chart(color = c("blue","yellow"))
+p
+```
+
+
+
+
+Besides, job category is also an importatnt feature, therefore we want to add it into this 'extractdf'.
+```{r}
+mydf = total <- merge(extractdf,df,by.x = "id",by.y = "Job.ID")
+mydf$Job.Category <- as.factor(mydf$Job.Category)
+```
+```{r}
+summary(mydf$salary_annual_mean)
+summary(mydf$salaray_annual_range)
+```
+
+```{r}
+mydf$binned_salary_mean <- cut(mydf$salary_annual_mean,breaks = c(0,58588,78316,93434,218587))
+mydf$binned_salary_range <- cut(mydf$salaray_annual_range,breaks = c(0,10000,28472,30447,160000))
+```
+
+```{r}
+cate_freq_mean = as.data.frame(table(mydf$Job.Category))
+cate_freq_mean$Annual_salary_mean <- NA
+for (i in 1:110){cate_freq_mean$Annual_salary_mean[i] <- mean(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$cate_sala_max <- NA
+for (i in 1:110){cate_freq_mean$cate_sala_max[i] <- max(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$cate_sala_min <- NA
+for (i in 1:110){cate_freq_mean$cate_sala_min[i] <- min(mydf$salary_annual_mean[mydf$Job.Category == cate_freq_mean$Var1[i]])}
+cate_freq_mean$Annual_salary_range <- cate_freq_mean$cate_sala_max - cate_freq_mean$cate_sala_min
+
+cate_freq_mean = cate_freq_mean[order(cate_freq_mean$Freq,decreasing = TRUE),]
+```
+
+```{r}
+top_popular_cate = head(cate_freq_mean,30)
+hPlot(Annual_salary_range~Annual_salary_mean,data = top_popular_cate,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on top 30 popular job categories')
+```
+
+
+```{r}
+hPlot(Annual_salary_range~Annual_salary_mean,data = cate_freq_mean,type = 'bubble', group = "Var1", size = 'Freq',title = 'Relationship between annual salary range and amount based on job categories')
+```
 
 
 
@@ -557,12 +690,16 @@ Be sure to review the final project instructions (https://edav.info/project.html
 
 ```{r}
 library(leaflet)
-job = read_csv('data/raw/NYC_Jobs.csv')%>%
+job = read_csv('data/clean/job_with_lat_long.csv')%>%
   filter(!is.na(latitude)) %>%
   filter(longitude < -74.0060 + 1) %>%
   filter(longitude > -74.0060 - 1) %>%
   filter(latitude < 40.7128 + 0.8) %>%
   filter(latitude > 40.7128 - 0.8)
+
+job$Full.Time.Part.Time.indicator[job$Full.Time.Part.Time.indicator == 'F'] = 'Full time'
+
+job$Full.Time.Part.Time.indicator[job$Full.Time.Part.Time.indicator == 'P'] = 'Part time'
 
 job = job %>%
   select(-'Job.Category')
@@ -570,7 +707,6 @@ df_popular_test = df_popular[,-3]
 
 job = unique(merge(df_popular_test, job, by = 'Job.ID'))
 
-#removing values for which there were no coordinates
 high_salary_geocodes = job %>%
   filter(Annual_salary > mean(Annual_salary))
 low_salary_geocodes = job %>%
@@ -588,17 +724,15 @@ ui <- bootstrapPage(
   leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(top = 10, left = 50,
                 selectInput(inputId = "Full_part_time","Choose full time or part time:",
-                            c("All", "F", "P")
+                            c("All", "Full time", "Part time")
                 ),
                 selectInput(inputId = "chosen_cate","Choose the category that you want:",
-                            c("All", "Maintenance", "Finance")
+                            c("All", popular_category$Category)
                 ),
                 sliderInput("Annual_salary", "Slide bar to choose the range of salary:", 
                             50000, 100000,
                             value = range(50000:100000), step = 10000
                 )
-                # numericInput("room_night", "Number of nights to stay", value = 5),
-                # checkboxInput("is_superhost", "Has to be a superhost", FALSE)
   )
 )
 
